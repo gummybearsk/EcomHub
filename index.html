@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Operations Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .quick-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .category-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .website-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .website-link {
+            display: block;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .website-link:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px 15px 0 0;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-section h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 5px;
+        }
+
+        .info-section p, .info-section ul {
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .info-section ul {
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin-bottom: 5px;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        .visit-website-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .visit-website-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pros, .cons {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .pros h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .cons h4 {
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-card {
+                padding: 20px;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 E-commerce Operations Hub</h1>
+            <p>Your daily toolkit for seamless e-commerce management</p>
+        </div>
+
+        <div class="quick-stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">7</span>
+                    <span class="stat-label">Categories</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">15</span>
+                    <span class="stat-label">Total Tools</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Efficiency</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>🛒</span>
+                    E-commerce Sites
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('amazon')">Amazon</div>
+                    <div class="website-link" onclick="openModal('shopify')">Shopify</div>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>🎨</span>
+                    Images
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('canva')">Canva</div>
+                    <div class="website-link" onclick="openModal('midjourney')">Midjourney</div>
+                    <div class="website-link" onclick="openModal('chatgpt-images')">ChatGPT</div>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>📝</span>
+                    Text Content
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('chatgpt-text')">ChatGPT</div>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>📦</span>
+                    Products
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('aliexpress')">AliExpress</div>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>📈</span>
+                    SEO Tools
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('semrush')">Semrush</div>
+                    <div class="website-link" onclick="openModal('ahrefs')">Ahrefs</div>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>📱</span>
+                    Social Media
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('tiktok')">TikTok</div>
+                    <div class="website-link" onclick="openModal('youtube')">YouTube</div>
+                    <div class="website-link" onclick="openModal('instagram')">Instagram</div>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h2 class="category-title">
+                    <span>💰</span>
+                    Advertising
+                </h2>
+                <div class="website-links">
+                    <div class="website-link" onclick="openModal('google-ads')">Google Ads</div>
+                    <div class="website-link" onclick="openModal('facebook-ads')">Facebook Ads</div>
+                    <div class="website-link" onclick="openModal('tiktok-ads')">TikTok Ads</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💼 Built for E-commerce Excellence | Last updated: June 2025</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <div class="modal-logo" id="modal-logo">🛒</div>
+                    <span id="modal-name">Website Name</span>
+                </h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Website data
+        const websites = {
+            amazon: {
+                name: 'Amazon',
+                logo: '📦',
+                url: 'https://amazon.com',
+                description: 'Amazon is the world\'s largest online marketplace and e-commerce platform, offering everything from books to electronics, and providing cloud computing services.',
+                rating: 4.3,
+                popularity: 'Most visited e-commerce site globally',
+                marketShare: '38% of US e-commerce',
+                advantages: [
+                    'Massive customer base (300+ million active users)',
+                    'Excellent logistics and fulfillment network',
+                    'Strong brand trust and recognition',
+                    'Advanced search and recommendation algorithms',
+                    'Multiple revenue streams (marketplace, ads, Prime)'
+                ],
+                disadvantages: [
+                    'High competition among sellers',
+                    'Strict policies and account suspension risks',
+                    'Fees can eat into profit margins',
+                    'Limited control over customer relationships',
+                    'Constant algorithm changes affecting visibility'
+                ],
+                useCase: 'Perfect for product research, competitive analysis, and understanding market trends. Essential for any e-commerce business.'
+            },
+            shopify: {
+                name: 'Shopify',
+                logo: '🛍️',
+                url: 'https://shopify.com',
+                description: 'Shopify is a leading e-commerce platform that enables individuals and businesses to create and customize their own online stores.',
+                rating: 4.4,
+                popularity: 'Powers over 1.7 million businesses worldwide',
+                marketShare: '10% of e-commerce platforms',
+                advantages: [
+                    'User-friendly interface and setup',
+                    'Extensive app ecosystem (6,000+ apps)',
+                    'Mobile-responsive themes',
+                    'Built-in payment processing',
+                    'Excellent customer support'
+                ],
+                disadvantages: [
+                    'Monthly subscription fees',
+                    'Transaction fees (unless using Shopify Payments)',
+                    'Limited customization without coding',
+                    'App costs can add up quickly',
+                    'Less flexibility than custom solutions'
+                ],
+                useCase: 'Ideal for building and managing your own e-commerce store, especially for small to medium businesses.'
+            },
+            canva: {
+                name: 'Canva',
+                logo: '🎨',
+                url: 'https://canva.com',
+                description: 'Canva is a graphic design platform that allows users to create social media graphics, presentations, posters, and other visual content.',
+                rating: 4.5,
+                popularity: 'Most popular online design tool',
+                marketShare: '60+ million monthly active users',
+                advantages: [
+                    'Intuitive drag-and-drop interface',
+                    'Thousands of templates and design elements',
+                    'Collaboration features for teams',
+                    'Mobile app availability',
+                    'Affordable pricing for premium features'
+                ],
+                disadvantages: [
+                    'Limited advanced design capabilities',
+                    'Internet connection required',
+                    'Premium elements require subscription',
+                    'Less control over precise positioning',
+                    'Generic look if using popular templates'
+                ],
+                useCase: 'Essential for creating product images, social media posts, ads, and marketing materials without design experience.'
+            },
+            midjourney: {
+                name: 'Midjourney',
+                logo: '🎭',
+                url: 'https://midjourney.com',
+                description: 'Midjourney is an AI-powered image generation tool that creates high-quality artwork and images from text descriptions.',
+                rating: 4.2,
+                popularity: 'Over 15 million users',
+                marketShare: 'Leading AI image generator',
+                advantages: [
+                    'Exceptional image quality and artistic style',
+                    'Fast generation times',
+                    'Unique and creative outputs',
+                    'Strong community and sharing features',
+                    'Constantly improving AI model'
+                ],
+                disadvantages: [
+                    'Requires Discord to use',
+                    'Subscription-based pricing only',
+                    'Limited control over specific details',
+                    'Generated images may need editing',
+                    'Copyright and commercial use considerations'
+                ],
+                useCase: 'Perfect for creating unique product mockups, lifestyle images, and creative marketing visuals when photography isn\'t available.'
+            },
+            'chatgpt-images': {
+                name: 'ChatGPT (DALL-E)',
+                logo: '🤖',
+                url: 'https://chat.openai.com',
+                description: 'ChatGPT with DALL-E integration allows users to generate images through conversational AI, creating custom visuals from text descriptions.',
+                rating: 4.0,
+                popularity: 'Most accessible AI image generator',
+                marketShare: 'Part of ChatGPT\'s 100M+ users',
+                advantages: [
+                    'Integrated with powerful text AI',
+                    'Conversational interface for refinements',
+                    'Good for specific requirements',
+                    'Multiple image variations',
+                    'Improving quality over time'
+                ],
+                disadvantages: [
+                    'Less artistic than specialized tools',
+                    'Limited free generations',
+                    'Subscription required for consistent access',
+                    'May not match specific brand aesthetics',
+                    'Terms of service restrictions'
+                ],
+                useCase: 'Great for quick concept images, product variations, and when you need to explain your requirements conversationally.'
+            },
+            'chatgpt-text': {
+                name: 'ChatGPT',
+                logo: '💬',
+                url: 'https://chat.openai.com',
+                description: 'ChatGPT is an AI-powered conversational tool that can help with writing, analysis, coding, and various text-based tasks.',
+                rating: 4.3,
+                popularity: 'Most popular AI assistant',
+                marketShare: '100+ million weekly users',
+                advantages: [
+                    'Versatile writing and content creation',
+                    'Fast response times',
+                    'Conversational and iterative',
+                    'Multilingual support',
+                    'Constantly learning and improving'
+                ],
+                disadvantages: [
+                    'May generate inaccurate information',
+                    'Usage limits on free tier',
+                    'Cannot browse the internet (base model)',
+                    'May lack specific industry knowledge',
+                    'Requires fact-checking for important content'
+                ],
+                useCase: 'Essential for product descriptions, email marketing, customer service responses, and content brainstorming.'
+            },
+            aliexpress: {
+                name: 'AliExpress',
+                logo: '🏪',
+                url: 'https://aliexpress.com',
+                description: 'AliExpress is a global online marketplace owned by Alibaba, connecting consumers with sellers primarily from China offering competitive prices.',
+                rating: 3.8,
+                popularity: '150+ million app downloads',
+                marketShare: 'Top 10 global e-commerce sites',
+                advantages: [
+                    'Extremely competitive pricing',
+                    'Massive product selection',
+                    'Buyer protection programs',
+                    'Dropshipping friendly',
+                    'Low minimum order quantities'
+                ],
+                disadvantages: [
+                    'Long shipping times (10-30 days)',
+                    'Variable product quality',
+                    'Language barriers with some sellers',
+                    'Complex return process',
+                    'Limited customer service'
+                ],
+                useCase: 'Perfect for product sourcing, dropshipping, and finding affordable alternatives to expensive products.'
+            },
+            semrush: {
+                name: 'Semrush',
+                logo: '📊',
+                url: 'https://semrush.com',
+                description: 'Semrush is a comprehensive digital marketing toolkit that provides SEO, PPC, content marketing, and competitive research tools.',
+                rating: 4.5,
+                popularity: '7+ million marketing professionals',
+                marketShare: '30% of SEO tools market',
+                advantages: [
+                    'Comprehensive SEO analysis',
+                    'Competitive intelligence features',
+                    'Keyword research and tracking',
+                    'Content marketing tools',
+                    'Regular data updates'
+                ],
+                disadvantages: [
+                    'Expensive for small businesses',
+                    'Steep learning curve',
+                    'Limited free features',
+                    'Data accuracy can vary by region',
+                    'Complex interface for beginners'
+                ],
+                useCase: 'Essential for keyword research, competitor analysis, and tracking SEO performance of your e-commerce site.'
+            },
+            ahrefs: {
+                name: 'Ahrefs',
+                logo: '🔗',
+                url: 'https://ahrefs.com',
+                description: 'Ahrefs is a powerful SEO toolset that helps with backlink analysis, keyword research, content marketing, and competitive analysis.',
+                rating: 4.6,
+                popularity: 'Used by 60% of SEO professionals',
+                marketShare: '25% of SEO tools market',
+                advantages: [
+                    'Best-in-class backlink database',
+                    'Accurate keyword difficulty scores',
+                    'Excellent site explorer tool',
+                    'Content gap analysis',
+                    'User-friendly interface'
+                ],
+                disadvantages: [
+                    'High pricing ($99+ per month)',
+                    'No free plan available',
+                    'Limited social media tools',
+                    'Focused mainly on SEO',
+                    'Can be overwhelming for beginners'
+                ],
+                useCase: 'Best for in-depth SEO analysis, link building strategies, and comprehensive competitor research.'
+            },
+            tiktok: {
+                name: 'TikTok',
+                logo: '🎵',
+                url: 'https://tiktok.com',
+                description: 'TikTok is a short-form video social media platform that has become a major marketing channel for reaching younger audiences.',
+                rating: 4.2,
+                popularity: 'Fastest-growing social platform',
+                marketShare: '1 billion+ monthly active users',
+                advantages: [
+                    'Massive Gen Z and Millennial audience',
+                    'High engagement rates',
+                    'Viral potential for content',
+                    'Authentic, user-generated content style',
+                    'Advanced algorithm for content discovery'
+                ],
+                disadvantages: [
+                    'Content requires constant creation',
+                    'Platform policies can change rapidly',
+                    'Limited link functionality',
+                    'Regulatory uncertainty in some markets',
+                    'Requires understanding of trends'
+                ],
+                useCase: 'Perfect for product demonstrations, brand awareness, and reaching younger demographics through creative content.'
+            },
+            youtube: {
+                name: 'YouTube',
+                logo: '📺',
+                url: 'https://youtube.com',
+                description: 'YouTube is the world\'s largest video sharing platform, essential for video marketing, tutorials, and building brand authority.',
+                rating: 4.4,
+                popularity: 'Second most visited website globally',
+                marketShare: '2+ billion logged-in monthly users',
+                advantages: [
+                    'Largest video platform globally',
+                    'Excellent SEO benefits',
+                    'Multiple monetization options',
+                    'Long-form content capabilities',
+                    'Strong analytics and insights'
+                ],
+                disadvantages: [
+                    'High competition for views',
+                    'Time-intensive content creation',
+                    'Algorithm changes affect reach',
+                    'Requires consistent uploading',
+                    'Copyright and content policy issues'
+                ],
+                useCase: 'Ideal for product tutorials, unboxing videos, brand storytelling, and building long-term audience relationships.'
+            },
+            instagram: {
+                name: 'Instagram',
+                logo: '📸',
+                url: 'https://instagram.com',
+                description: 'Instagram is a visual-focused social media platform perfect for showcasing products, building brand aesthetics, and influencer marketing.',
+                rating: 4.1,
+                popularity: 'Top platform for e-commerce marketing',
+                marketShare: '2 billion monthly active users',
+                advantages: [
+                    'Highly visual and product-focused',
+                    'Strong shopping integration',
+                    'Multiple content formats (posts, stories, reels)',
+                    'Influencer marketing opportunities',
+                    'Detailed audience insights'
+                ],
+                disadvantages: [
+                    'Algorithm limits organic reach',
+                    'Requires high-quality visual content',
+                    'Story content disappears after 24 hours',
+                    'Increasing advertising costs',
+                    'Heavy time investment needed'
+                ],
+                useCase: 'Essential for visual product marketing, brand building, and reaching customers through shopping features and ads.'
+            },
+            'google-ads': {
+                name: 'Google Ads',
+                logo: '🎯',
+                url: 'https://ads.google.com',
+                description: 'Google Ads is the world\'s largest online advertising platform, allowing businesses to display ads on Google search results and partner websites.',
+                rating: 4.2,
+                popularity: 'Used by millions of businesses worldwide',
+                marketShare: '28% of digital advertising spend',
+                advantages: [
+                    'Largest search advertising reach',
+                    'Precise targeting options',
+                    'Pay-per-click cost control',
+                    'Detailed analytics and reporting',
+                    'Multiple ad formats available'
+                ],
+                disadvantages: [
+                    'Can be expensive in competitive industries',
+                    'Complex learning curve',
+                    'Requires ongoing optimization',
+                    'Click fraud concerns',
+                    'Ad fatigue and banner blindness'
+                ],
+                useCase: 'Essential for driving targeted traffic, increasing sales, and reaching customers at the moment they\'re searching for products.'
+            },
+            'facebook-ads': {
+                name: 'Facebook Ads',
+                logo: '👥',
+                url: 'https://facebook.com/business',
+                description: 'Facebook Ads Manager allows businesses to create and manage advertising campaigns across Facebook, Instagram, and other Meta platforms.',
+                rating: 4.0,
+                popularity: '3+ billion monthly active users across platforms',
+                marketShare: '23% of digital advertising spend',
+                advantages: [
+                    'Detailed demographic targeting',
+                    'Large user base across age groups',
+                    'Multiple ad formats and placements',
+                    'Cross-platform advertising (Facebook + Instagram)',
+                    'Powerful retargeting capabilities'
+                ],
+                disadvantages: [
+                    'Increasing competition and costs',
+                    'Privacy changes affecting targeting',
+                    'Ad fatigue among users',
+                    'Complex campaign management',
+                    'Platform policy changes'
+                ],
+                useCase: 'Perfect for brand awareness, lead generation, and reaching specific demographics with highly targeted campaigns.'
+            },
+            'tiktok-ads': {
+                name: 'TikTok Ads',
+                logo: '🎪',
+                url: 'https://ads.tiktok.com',
+                description: 'TikTok Ads Manager enables businesses to create engaging video advertisements on the rapidly growing TikTok platform.',
+                rating: 3.9,
+                popularity: '1+ billion monthly active users',
+                marketShare: 'Fastest-growing ad platform',
+                advantages: [
+                    'High engagement rates with younger audiences',
+                    'Creative and authentic ad formats',
+                    'Growing user base and less competition',
+                    'Advanced targeting options',
+                    'Viral potential for creative content'
+                ],
+                disadvantages: [
+                    'Limited to younger demographics primarily',
+                    'Requires video content creation skills',
+                    'Platform still maturing for business use',
+                    'Regulatory concerns in some markets',
+                    'Higher content creation costs'
+                ],
+                useCase: 'Ideal for reaching Gen Z and Millennials, launching viral marketing campaigns, and building brand awareness through creative video content.'
+            }
+        };
+
+        function openModal(websiteId) {
+            const website = websites[websiteId];
+            if (!website) return;
+
+            const modal = document.getElementById('modal');
+            const modalLogo = document.getElementById('modal-logo');
+            const modalName = document.getElementById('modal-name');
+            const modalBody = document.getElementById('modal-body');
+
+            modalLogo.textContent = website.logo;
+            modalName.textContent = website.name;
+
+            const stars = '★'.repeat(Math.floor(website.rating)) + '☆'.repeat(5 - Math.floor(website.rating));
+
+            modalBody.innerHTML = `
+                <div class="info-section">
+                    <h3>What is ${website.name}?</h3>
+                    <p>${website.description}</p>
+                </div>
+
+                <div class="info-section">
+                    <h3>Rating & Popularity</h3>
+                    <p>
+                        <span class="rating-stars">${stars}</span>
+                        <strong>${website.rating}/5.0</strong> - ${website.popularity}
+                    </p>
+                </div>
+
+                <div class="info-section">
+                    <h3>Market Share</h3>
+                    <p>${website.marketShare}</p>
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Advantages</h4>
+                        <ul>
+                            ${website.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Disadvantages</h4>
+                        <ul>
+                            ${website.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Best Use Case</h3>
+                    <p>${website.useCase}</p>
+                </div>
+
+                <button class="visit-website-btn" onclick="visitWebsite('${website.url}')">
+                    Visit ${website.name} →
+                </button>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function visitWebsite(url) {
+            window.open(url, '_blank');
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
