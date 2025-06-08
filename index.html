@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-commerce Operations Dashboard</title>
+    <title>E-commerce Tools Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -13,14 +13,26 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 20px;
+        }
+
+        @media (min-width: 1600px) {
+            .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            }
+            
+            .tools-list {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
         }
 
         .header {
@@ -30,285 +42,572 @@
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             opacity: 0.9;
         }
 
-        .quick-stats {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+        .controls {
+            background: rgba(255,255,255,0.95);
             padding: 20px;
-            text-align: center;
+            border-radius: 15px;
             margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
+        .category-view {
+            display: none;
         }
 
-        .stat-item {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
+        .category-view.active {
             display: block;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .category-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+        .category-section {
+            background: white;
+            border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
         }
 
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
         }
 
         .category-title {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 20px;
             color: #333;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin-right: 15px;
         }
 
-        .website-links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .website-link {
-            display: block;
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            color: #333;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            border-left: 4px solid #667eea;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .website-link:hover {
+        .category-count {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 2% auto;
-            padding: 0;
+            padding: 5px 12px;
             border-radius: 15px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
-        .modal-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 25px;
-            border-radius: 15px 15px 0 0;
-            position: relative;
-        }
-
-        .modal-title {
-            font-size: 2rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
+        .tools-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px;
         }
 
-        .modal-logo {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            color: white;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .tool-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
             transition: all 0.3s ease;
         }
 
-        .close:hover {
-            background: rgba(255,255,255,0.2);
-            transform: rotate(90deg);
+        .tool-item:hover {
+            background: #f0f2ff;
+            transform: translateX(5px);
         }
 
-        .modal-body {
-            padding: 30px;
-        }
-
-        .info-section {
-            margin-bottom: 25px;
-        }
-
-        .info-section h3 {
-            color: #667eea;
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 5px;
-        }
-
-        .info-section p, .info-section ul {
-            line-height: 1.6;
-            color: #444;
-        }
-
-        .info-section ul {
-            padding-left: 20px;
-        }
-
-        .info-section li {
+        .tool-name {
+            font-weight: 600;
+            color: #333;
             margin-bottom: 5px;
         }
 
-        .rating-stars {
-            color: #ffc107;
-            font-size: 1.2rem;
-            margin-right: 10px;
+        .tool-description {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
         }
 
-        .visit-website-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.1rem;
+        .tools-grid.active {
+            display: grid;
+        }
+
+        .tools-grid {
+            display: none;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .category-filter, .sort-select {
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            background: white;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
-            width: 100%;
         }
 
-        .visit-website-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        .category-filter:focus, .sort-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .tool-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .tool-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .tool-url:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .market-share {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .market-item {
+            background: #f8f9ff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .market-item strong {
+            color: #333;
+        }
+
+        .tool-intro {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .expandable-content {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 20px;
+        }
+
+        .expandable-content.expanded {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .pros-cons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .pros, .cons {
-            background: #f8f9fa;
-            padding: 20px;
+            background: #f8f9ff;
+            padding: 15px;
             border-radius: 10px;
         }
 
         .pros h4 {
-            color: #28a745;
+            color: #22c55e;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .cons h4 {
-            color: #dc3545;
+            color: #ef4444;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pros li, .cons li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .pros li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .cons li::before {
+            content: '✗';
+            position: absolute;
+            left: 0;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .use-case, .review {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .use-case h4, .review h4 {
+            color: #334155;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .use-case p, .review p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #64748b;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
             margin-bottom: 10px;
         }
 
-        .footer {
+        .loading {
             text-align: center;
-            margin-top: 40px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+            
+            .tools-list {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .category-card {
-                padding: 20px;
+            .container {
+                padding: 15px;
             }
 
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .tools-list {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .search-box {
+                min-width: auto;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
             .pros-cons {
                 grid-template-columns: 1fr;
             }
+            
+            .tool-card {
+                padding: 20px;
+            }
+            
+            .category-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .category-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .category-title {
+                font-size: 1.3rem;
+            }
+            
+            .view-toggle {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .view-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                text-align: center;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 8px;
+                font-size: 13px;
+            }
+            
+            .tool-item {
+                padding: 12px;
+            }
+            
+            .tool-name {
+                font-size: 0.95rem;
+            }
+            
+            .tool-description {
+                font-size: 0.8rem;
+            }
+        }
 
-            .modal-content {
-                width: 95%;
-                margin: 5% auto;
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .tool-card {
+                padding: 15px;
+            }
+            
+            .category-section {
+                padding: 15px;
+            }
+            
+            .tool-title {
+                font-size: 1.2rem;
+            }
+            
+            .category-title {
+                font-size: 1.2rem;
+            }
+            
+            .toggle-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .market-share {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .market-item {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .view-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .tool-card {
+                padding: 12px;
+            }
+            
+            .category-section {
+                padding: 12px;
             }
         }
     </style>
@@ -316,576 +615,2656 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 E-commerce Operations Hub</h1>
-            <p>Your daily toolkit for seamless e-commerce management</p>
+            <h1>🚀 E-commerce Tools Dashboard</h1>
+            <p>Discover the best tools to grow your online business</p>
         </div>
 
-        <div class="quick-stats">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-number">7</span>
-                    <span class="stat-label">Categories</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">15</span>
-                    <span class="stat-label">Total Tools</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">100%</span>
-                    <span class="stat-label">Efficiency</span>
-                </div>
+        <div class="controls">
+            <div class="view-toggle">
+                <button class="view-btn active" id="categoryViewBtn" onclick="switchView('category')">📂 Categories</button>
+                <button class="view-btn" id="gridViewBtn" onclick="switchView('grid')">🔍 Search & Filter</button>
             </div>
-        </div>
-
-        <div class="dashboard">
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>🛒</span>
-                    E-commerce Sites
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('amazon')">Amazon</div>
-                    <div class="website-link" onclick="openModal('shopify')">Shopify</div>
-                </div>
+            <div class="filters" id="filtersSection" style="display: none;">
+                <input type="text" class="search-box" placeholder="Search tools..." id="searchInput">
+                <select class="category-filter" id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+                <select class="sort-select" id="sortSelect">
+                    <option value="rating">Sort by Rating</option>
+                    <option value="name">Sort by Name</option>
+                    <option value="marketShareUS">Sort by US Market Share</option>
+                    <option value="marketShareWorld">Sort by Global Market Share</option>
+                </select>
             </div>
-
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>🎨</span>
-                    Images
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('canva')">Canva</div>
-                    <div class="website-link" onclick="openModal('midjourney')">Midjourney</div>
-                    <div class="website-link" onclick="openModal('chatgpt-images')">ChatGPT</div>
-                </div>
-            </div>
-
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>📝</span>
-                    Text Content
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('chatgpt-text')">ChatGPT</div>
-                </div>
-            </div>
-
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>📦</span>
-                    Products
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('aliexpress')">AliExpress</div>
-                </div>
-            </div>
-
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>📈</span>
-                    SEO Tools
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('semrush')">Semrush</div>
-                    <div class="website-link" onclick="openModal('ahrefs')">Ahrefs</div>
-                </div>
-            </div>
-
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>📱</span>
-                    Social Media
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('tiktok')">TikTok</div>
-                    <div class="website-link" onclick="openModal('youtube')">YouTube</div>
-                    <div class="website-link" onclick="openModal('instagram')">Instagram</div>
-                </div>
-            </div>
-
-            <div class="category-card">
-                <h2 class="category-title">
-                    <span>💰</span>
-                    Advertising
-                </h2>
-                <div class="website-links">
-                    <div class="website-link" onclick="openModal('google-ads')">Google Ads</div>
-                    <div class="website-link" onclick="openModal('facebook-ads')">Facebook Ads</div>
-                    <div class="website-link" onclick="openModal('tiktok-ads')">TikTok Ads</div>
-                </div>
+            <div class="stats">
+                <div>Total Tools: <span id="totalCount">0</span></div>
+                <div>Showing: <span id="showingCount">0</span></div>
+                <div>Categories: <span id="categoryCount">0</span></div>
             </div>
         </div>
 
-        <div class="footer">
-            <p>💼 Built for E-commerce Excellence | Last updated: June 2025</p>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading amazing tools...</p>
         </div>
-    </div>
 
-    <!-- Modal -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <div class="modal-logo" id="modal-logo">🛒</div>
-                    <span id="modal-name">Website Name</span>
-                </h2>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <div class="modal-body" id="modal-body">
-                <!-- Content will be loaded here -->
-            </div>
+        <div class="category-view active" id="categoryView"></div>
+
+        <div class="tools-grid" id="toolsGrid"></div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <h3>No tools found</h3>
+            <p>Try adjusting your search criteria or filters</p>
         </div>
     </div>
 
     <script>
         // Website data
-        const websites = {
-            amazon: {
-                name: 'Amazon',
-                logo: '📦',
-                url: 'https://amazon.com',
-                description: 'Amazon is the world\'s largest online marketplace and e-commerce platform, offering everything from books to electronics, and providing cloud computing services.',
-                rating: 4.3,
-                popularity: 'Most visited e-commerce site globally',
-                marketShare: '38% of US e-commerce',
+        const websiteData = {
+            // E-commerce Platforms
+            'amazon-seller': {
+                name: 'Amazon Seller Central',
+                url: 'https://sellercentral.amazon.com',
+                rating: 85,
+                marketShareUS: '39%',
+                marketShareWorld: '13%',
+                category: 'E-commerce Platforms',
+                intro: 'Amazon Seller Central is the comprehensive platform for businesses to sell products on Amazon marketplace. It provides tools for inventory management, order processing, customer service, and advertising.',
                 advantages: [
-                    'Massive customer base (300+ million active users)',
-                    'Excellent logistics and fulfillment network',
-                    'Strong brand trust and recognition',
-                    'Advanced search and recommendation algorithms',
-                    'Multiple revenue streams (marketplace, ads, Prime)'
+                    'Massive customer base and traffic',
+                    'Fulfillment by Amazon (FBA) service',
+                    'Built-in advertising platform',
+                    'Global marketplace reach',
+                    'Trusted brand recognition'
                 ],
                 disadvantages: [
-                    'High competition among sellers',
-                    'Strict policies and account suspension risks',
-                    'Fees can eat into profit margins',
-                    'Limited control over customer relationships',
-                    'Constant algorithm changes affecting visibility'
+                    'High competition and fees',
+                    'Strict policies and account suspensions',
+                    'Limited customer data access',
+                    'Amazon controls the relationship',
+                    'Complex fee structure'
                 ],
-                useCase: 'Perfect for product research, competitive analysis, and understanding market trends. Essential for any e-commerce business.'
+                bestUseCase: 'Best for businesses looking to reach Amazon\'s massive customer base and leverage their fulfillment infrastructure.',
+                review: 'Essential platform for e-commerce with unmatched reach but requires careful navigation of policies and competition.'
             },
-            shopify: {
+            'shopify': {
                 name: 'Shopify',
-                logo: '🛍️',
                 url: 'https://shopify.com',
-                description: 'Shopify is a leading e-commerce platform that enables individuals and businesses to create and customize their own online stores.',
-                rating: 4.4,
-                popularity: 'Powers over 1.7 million businesses worldwide',
-                marketShare: '10% of e-commerce platforms',
+                rating: 92,
+                marketShareUS: '10%',
+                marketShareWorld: '8%',
+                category: 'E-commerce Platforms',
+                intro: 'Shopify is a leading e-commerce platform that allows businesses to create and customize their online stores. It offers comprehensive tools for selling online, in-person, and everywhere in between.',
                 advantages: [
                     'User-friendly interface and setup',
-                    'Extensive app ecosystem (6,000+ apps)',
+                    'Extensive app ecosystem',
                     'Mobile-responsive themes',
                     'Built-in payment processing',
                     'Excellent customer support'
                 ],
                 disadvantages: [
                     'Monthly subscription fees',
-                    'Transaction fees (unless using Shopify Payments)',
+                    'Transaction fees for external payments',
                     'Limited customization without coding',
-                    'App costs can add up quickly',
-                    'Less flexibility than custom solutions'
+                    'App costs can add up',
+                    'Limited blogging capabilities'
                 ],
-                useCase: 'Ideal for building and managing your own e-commerce store, especially for small to medium businesses.'
+                bestUseCase: 'Perfect for small to medium businesses wanting a professional online store without technical complexity.',
+                review: 'Industry-leading platform with excellent balance of features, ease of use, and scalability.'
             },
-            canva: {
-                name: 'Canva',
-                logo: '🎨',
-                url: 'https://canva.com',
-                description: 'Canva is a graphic design platform that allows users to create social media graphics, presentations, posters, and other visual content.',
-                rating: 4.5,
-                popularity: 'Most popular online design tool',
-                marketShare: '60+ million monthly active users',
+            'ebay': {
+                name: 'eBay Seller Hub',
+                url: 'https://www.ebay.com/sh/landing',
+                rating: 78,
+                marketShareUS: '6.6%',
+                marketShareWorld: '4.9%',
+                category: 'E-commerce Platforms',
+                intro: 'eBay Seller Hub provides tools for managing your eBay business, including listing creation, performance analytics, inventory management, and promotional tools.',
                 advantages: [
-                    'Intuitive drag-and-drop interface',
-                    'Thousands of templates and design elements',
-                    'Collaboration features for teams',
-                    'Mobile app availability',
-                    'Affordable pricing for premium features'
+                    'Large, established marketplace',
+                    'Auction and fixed-price formats',
+                    'Global reach',
+                    'Lower fees than Amazon',
+                    'Good for unique/vintage items'
                 ],
                 disadvantages: [
-                    'Limited advanced design capabilities',
-                    'Internet connection required',
-                    'Premium elements require subscription',
-                    'Less control over precise positioning',
-                    'Generic look if using popular templates'
+                    'Declining user base',
+                    'Complex fee structure',
+                    'Less trust from buyers than Amazon',
+                    'Limited customer data',
+                    'Outdated interface'
                 ],
-                useCase: 'Essential for creating product images, social media posts, ads, and marketing materials without design experience.'
+                bestUseCase: 'Best for selling unique items, collectibles, or when you want auction-style selling.',
+                review: 'Veteran marketplace with solid tools but facing increasing competition from newer platforms.'
             },
-            midjourney: {
+            'etsy': {
+                name: 'Etsy Seller',
+                url: 'https://www.etsy.com/sell',
+                rating: 81,
+                marketShareUS: '1.7%',
+                marketShareWorld: '1.2%',
+                category: 'E-commerce Platforms',
+                intro: 'Etsy is a global marketplace focused on handmade, vintage items, and craft supplies. Perfect platform for creative entrepreneurs and artisans.',
+                advantages: [
+                    'Focused on handmade/creative items',
+                    'Built-in audience for unique products',
+                    'Strong community support',
+                    'Mobile-friendly platform',
+                    'International shipping tools'
+                ],
+                disadvantages: [
+                    'High competition in popular categories',
+                    'Transaction and payment processing fees',
+                    'Limited customization options',
+                    'Seasonal sales fluctuations',
+                    'Strict handmade policies'
+                ],
+                bestUseCase: 'Perfect for artisans, crafters, and sellers of vintage or handmade items.',
+                review: 'Excellent niche marketplace for creative products with engaged, quality-conscious buyers.'
+            },
+            'walmart': {
+                name: 'Walmart Marketplace',
+                url: 'https://marketplace.walmart.com',
+                rating: 76,
+                marketShareUS: '5.3%',
+                marketShareWorld: '2.1%',
+                category: 'E-commerce Platforms',
+                intro: 'Walmart Marketplace allows third-party sellers to reach Walmart\'s massive customer base through their e-commerce platform.',
+                advantages: [
+                    'Access to Walmart customer base',
+                    'Growing marketplace',
+                    'Competitive fee structure',
+                    'Integration with physical stores',
+                    'Less saturated than Amazon'
+                ],
+                disadvantages: [
+                    'Strict application process',
+                    'Limited international reach',
+                    'Newer platform with fewer tools',
+                    'High performance standards',
+                    'Limited advertising options'
+                ],
+                bestUseCase: 'Good for established businesses looking to expand beyond Amazon with quality products.',
+                review: 'Promising marketplace with growth potential but requires meeting high standards for approval.'
+            },
+            'facebook-marketplace': {
+                name: 'Facebook Marketplace',
+                url: 'https://www.facebook.com/marketplace',
+                rating: 73,
+                marketShareUS: '4.2%',
+                marketShareWorld: '3.8%',
+                category: 'E-commerce Platforms',
+                intro: 'Facebook Marketplace leverages Facebook\'s social network to create a local and online selling platform with integrated social features.',
+                advantages: [
+                    'Massive user base',
+                    'Local selling focus',
+                    'Social proof through profiles',
+                    'Free to use',
+                    'Integrated with Facebook ecosystem'
+                ],
+                disadvantages: [
+                    'Limited business tools',
+                    'Safety concerns for local meetings',
+                    'No built-in payment protection',
+                    'Difficult to scale business',
+                    'Algorithm changes affect visibility'
+                ],
+                bestUseCase: 'Great for local selling, small businesses, and items that benefit from social proof.',
+                review: 'Good for casual selling and local markets but lacks professional e-commerce features.'
+            },
+            'woocommerce': {
+                name: 'WooCommerce',
+                url: 'https://woocommerce.com',
+                rating: 86,
+                marketShareUS: '5.8%',
+                marketShareWorld: '7.2%',
+                category: 'E-commerce Platforms',
+                intro: 'WooCommerce is a customizable, open-source e-commerce platform built for WordPress. It offers complete control over your online store.',
+                advantages: [
+                    'Highly customizable',
+                    'No transaction fees',
+                    'Extensive plugin ecosystem',
+                    'SEO-friendly',
+                    'Full ownership of data'
+                ],
+                disadvantages: [
+                    'Requires technical knowledge',
+                    'Hosting and maintenance needed',
+                    'Can become complex',
+                    'Security responsibility',
+                    'Performance optimization required'
+                ],
+                bestUseCase: 'Perfect for businesses wanting complete control and customization with WordPress expertise.',
+                review: 'Powerful and flexible platform for those willing to invest time in setup and maintenance.'
+            },
+            'bigcommerce': {
+                name: 'BigCommerce',
+                url: 'https://www.bigcommerce.com',
+                rating: 84,
+                marketShareUS: '3.1%',
+                marketShareWorld: '2.8%',
+                category: 'E-commerce Platforms',
+                intro: 'BigCommerce is a feature-rich e-commerce platform designed for growing businesses, offering built-in tools and no transaction fees.',
+                advantages: [
+                    'No transaction fees',
+                    'Built-in features',
+                    'API-first architecture',
+                    'Multi-channel selling',
+                    'Enterprise-level capabilities'
+                ],
+                disadvantages: [
+                    'Limited theme customization',
+                    'Complex pricing tiers',
+                    'Storage limitations on lower plans',
+                    'Less app ecosystem than Shopify',
+                    'Steeper learning curve'
+                ],
+                bestUseCase: 'Ideal for fast-growing businesses needing enterprise features without transaction fees.',
+                review: 'Solid platform with enterprise capabilities but requires more technical knowledge than competitors.'
+            },
+
+            // AI & Text Tools
+            'claude': {
+                name: 'Claude AI',
+                url: 'https://claude.ai',
+                rating: 90,
+                marketShareUS: '15%',
+                marketShareWorld: '12%',
+                category: 'AI & Text Tools',
+                intro: 'Claude is Anthropic\'s AI assistant focused on being helpful, harmless, and honest. Excellent for content creation, analysis, and business strategy.',
+                advantages: [
+                    'Strong reasoning capabilities',
+                    'Excellent for analysis and research',
+                    'Ethical AI approach',
+                    'Long-context conversations',
+                    'Code generation abilities'
+                ],
+                disadvantages: [
+                    'Newer platform with fewer integrations',
+                    'Limited image generation',
+                    'Smaller user community',
+                    'Less training data than competitors',
+                    'Availability restrictions in some regions'
+                ],
+                bestUseCase: 'Perfect for detailed analysis, strategic planning, and complex content creation.',
+                review: 'High-quality AI with strong analytical capabilities and ethical approach to AI development.'
+            },
+            'gemini': {
+                name: 'Google Gemini',
+                url: 'https://gemini.google.com',
+                rating: 85,
+                marketShareUS: '20%',
+                marketShareWorld: '18%',
+                category: 'AI & Text Tools',
+                intro: 'Google Gemini is Google\'s advanced AI model integrated with Google services, offering multimodal capabilities for text, code, and images.',
+                advantages: [
+                    'Integration with Google services',
+                    'Multimodal capabilities',
+                    'Real-time information access',
+                    'Strong coding abilities',
+                    'Free tier available'
+                ],
+                disadvantages: [
+                    'Privacy concerns with Google',
+                    'Less creative than some competitors',
+                    'Inconsistent performance',
+                    'Limited customization',
+                    'Regional availability issues'
+                ],
+                bestUseCase: 'Great for users already in Google ecosystem needing research and analysis.',
+                review: 'Solid AI with Google integration but still developing its unique strengths.'
+            },
+            'jasper': {
+                name: 'Jasper AI',
+                url: 'https://www.jasper.ai',
+                rating: 82,
+                marketShareUS: '8%',
+                marketShareWorld: '6%',
+                category: 'AI & Text Tools',
+                intro: 'Jasper AI is specifically designed for marketing and content creation, offering templates and brand voice training for businesses.',
+                advantages: [
+                    'Marketing-focused features',
+                    'Brand voice training',
+                    'Content templates',
+                    'Team collaboration tools',
+                    'Integration with marketing tools'
+                ],
+                disadvantages: [
+                    'Expensive pricing',
+                    'Limited free tier',
+                    'Focused mainly on marketing',
+                    'Can be repetitive',
+                    'Requires good prompting skills'
+                ],
+                bestUseCase: 'Best for marketing teams and agencies focused on content creation at scale.',
+                review: 'Specialized AI for marketing with good templates but high pricing for small businesses.'
+            },
+            'copy-ai': {
+                name: 'Copy.ai',
+                url: 'https://www.copy.ai',
+                rating: 79,
+                marketShareUS: '5%',
+                marketShareWorld: '4%',
+                category: 'AI & Text Tools',
+                intro: 'Copy.ai provides AI-powered copywriting tools designed to help marketers and entrepreneurs create compelling marketing copy quickly.',
+                advantages: [
+                    'User-friendly interface',
+                    'Affordable pricing',
+                    'Multiple copy formats',
+                    'Good for beginners',
+                    'Regular template updates'
+                ],
+                disadvantages: [
+                    'Limited advanced features',
+                    'Generic output sometimes',
+                    'Fewer integrations',
+                    'Less customization',
+                    'Quality can be inconsistent'
+                ],
+                bestUseCase: 'Perfect for small businesses and solopreneurs needing quick marketing copy.',
+                review: 'Accessible AI copywriting tool with good value but limited advanced capabilities.'
+            },
+            'writesonic': {
+                name: 'Writesonic',
+                url: 'https://writesonic.com',
+                rating: 80,
+                marketShareUS: '4%',
+                marketShareWorld: '3%',
+                category: 'AI & Text Tools',
+                intro: 'Writesonic offers AI writing tools for various content types including articles, ads, product descriptions, and more.',
+                advantages: [
+                    'Diverse content types',
+                    'Competitive pricing',
+                    'Multiple language support',
+                    'Article writing features',
+                    'Chrome extension available'
+                ],
+                disadvantages: [
+                    'Quality varies by content type',
+                    'Limited advanced editing',
+                    'Word count limitations',
+                    'Learning curve for best results',
+                    'Customer support issues'
+                ],
+                bestUseCase: 'Good for content creators needing various types of writing assistance.',
+                review: 'Decent all-around writing tool with competitive pricing but inconsistent quality.'
+            },
+            'grammarly': {
+                name: 'Grammarly',
+                url: 'https://www.grammarly.com',
+                rating: 91,
+                marketShareUS: '35%',
+                marketShareWorld: '30%',
+                category: 'AI & Text Tools',
+                intro: 'Grammarly is an AI-powered writing assistant that helps improve grammar, clarity, engagement, and delivery across all writing.',
+                advantages: [
+                    'Excellent grammar checking',
+                    'Tone and clarity suggestions',
+                    'Wide platform integration',
+                    'Real-time corrections',
+                    'Plagiarism detection'
+                ],
+                disadvantages: [
+                    'Can be overly aggressive',
+                    'Premium features expensive',
+                    'Limited creative writing help',
+                    'Sometimes misses context',
+                    'Privacy concerns with content'
+                ],
+                bestUseCase: 'Essential for anyone writing professional content, emails, or marketing materials.',
+                review: 'Industry standard for writing assistance with excellent accuracy and integration.'
+            },
+            'quillbot': {
+                name: 'QuillBot',
+                url: 'https://quillbot.com',
+                rating: 83,
+                marketShareUS: '12%',
+                marketShareWorld: '10%',
+                category: 'AI & Text Tools',
+                intro: 'QuillBot is an AI paraphrasing tool that helps rewrite and enhance text while maintaining original meaning.',
+                advantages: [
+                    'Excellent paraphrasing capabilities',
+                    'Multiple writing modes',
+                    'Plagiarism checker included',
+                    'Citation generator',
+                    'Affordable pricing'
+                ],
+                disadvantages: [
+                    'Limited original content creation',
+                    'Can lose original meaning',
+                    'Word count limits on free plan',
+                    'Less comprehensive than competitors',
+                    'Sometimes awkward phrasing'
+                ],
+                bestUseCase: 'Perfect for rewriting content, avoiding plagiarism, and improving text clarity.',
+                review: 'Specialized tool for paraphrasing with good accuracy but limited creative capabilities.'
+            },
+
+            // AI Business Tools
+            'midjourney': {
                 name: 'Midjourney',
-                logo: '🎭',
-                url: 'https://midjourney.com',
-                description: 'Midjourney is an AI-powered image generation tool that creates high-quality artwork and images from text descriptions.',
-                rating: 4.2,
-                popularity: 'Over 15 million users',
-                marketShare: 'Leading AI image generator',
+                url: 'https://www.midjourney.com',
+                rating: 93,
+                marketShareUS: '45%',
+                marketShareWorld: '40%',
+                category: 'AI Business Tools',
+                intro: 'Midjourney is a leading AI image generation platform known for creating stunning, artistic images from text prompts.',
                 advantages: [
-                    'Exceptional image quality and artistic style',
-                    'Fast generation times',
-                    'Unique and creative outputs',
-                    'Strong community and sharing features',
-                    'Constantly improving AI model'
+                    'Exceptional image quality',
+                    'Artistic and creative outputs',
+                    'Active community',
+                    'Regular model updates',
+                    'Unique aesthetic styles'
                 ],
                 disadvantages: [
-                    'Requires Discord to use',
-                    'Subscription-based pricing only',
-                    'Limited control over specific details',
-                    'Generated images may need editing',
-                    'Copyright and commercial use considerations'
+                    'Discord-only interface',
+                    'No free tier',
+                    'Limited commercial usage rights',
+                    'Learning curve for prompting',
+                    'Can be slow during peak times'
                 ],
-                useCase: 'Perfect for creating unique product mockups, lifestyle images, and creative marketing visuals when photography isn\'t available.'
+                bestUseCase: 'Best for creating artistic visuals, marketing materials, and creative content.',
+                review: 'Top-tier AI image generator with unmatched artistic quality but requires Discord usage.'
             },
-            'chatgpt-images': {
-                name: 'ChatGPT (DALL-E)',
-                logo: '🤖',
-                url: 'https://chat.openai.com',
-                description: 'ChatGPT with DALL-E integration allows users to generate images through conversational AI, creating custom visuals from text descriptions.',
-                rating: 4.0,
-                popularity: 'Most accessible AI image generator',
-                marketShare: 'Part of ChatGPT\'s 100M+ users',
+            'runway': {
+                name: 'Runway ML',
+                url: 'https://runwayml.com',
+                rating: 89,
+                marketShareUS: '25%',
+                marketShareWorld: '22%',
+                category: 'AI Business Tools',
+                intro: 'Runway ML offers AI-powered creative tools for video editing, image generation, and content creation for creators and businesses.',
                 advantages: [
-                    'Integrated with powerful text AI',
-                    'Conversational interface for refinements',
-                    'Good for specific requirements',
-                    'Multiple image variations',
-                    'Improving quality over time'
+                    'Video generation capabilities',
+                    'Multiple AI tools in one platform',
+                    'User-friendly interface',
+                    'Regular feature updates',
+                    'Good for content creators'
                 ],
                 disadvantages: [
-                    'Less artistic than specialized tools',
-                    'Limited free generations',
-                    'Subscription required for consistent access',
-                    'May not match specific brand aesthetics',
-                    'Terms of service restrictions'
+                    'Expensive for high usage',
+                    'Credit-based pricing',
+                    'Learning curve for advanced features',
+                    'Output quality varies',
+                    'Limited free tier'
                 ],
-                useCase: 'Great for quick concept images, product variations, and when you need to explain your requirements conversationally.'
+                bestUseCase: 'Perfect for video content creators and marketers needing AI-powered editing tools.',
+                review: 'Comprehensive creative AI platform with strong video capabilities but can get expensive.'
             },
-            'chatgpt-text': {
-                name: 'ChatGPT',
-                logo: '💬',
-                url: 'https://chat.openai.com',
-                description: 'ChatGPT is an AI-powered conversational tool that can help with writing, analysis, coding, and various text-based tasks.',
-                rating: 4.3,
-                popularity: 'Most popular AI assistant',
-                marketShare: '100+ million weekly users',
+            'stable-diffusion': {
+                name: 'Stable Diffusion',
+                url: 'https://stability.ai',
+                rating: 87,
+                marketShareUS: '15%',
+                marketShareWorld: '18%',
+                category: 'AI Business Tools',
+                intro: 'Stable Diffusion is an open-source AI image generation model that can be run locally or through various online platforms.',
                 advantages: [
-                    'Versatile writing and content creation',
-                    'Fast response times',
-                    'Conversational and iterative',
-                    'Multilingual support',
-                    'Constantly learning and improving'
+                    'Open-source and free',
+                    'Highly customizable',
+                    'No usage restrictions',
+                    'Active developer community',
+                    'Can run locally'
                 ],
                 disadvantages: [
-                    'May generate inaccurate information',
-                    'Usage limits on free tier',
-                    'Cannot browse the internet (base model)',
-                    'May lack specific industry knowledge',
-                    'Requires fact-checking for important content'
+                    'Requires technical knowledge',
+                    'Setup can be complex',
+                    'Hardware requirements for local use',
+                    'Quality depends on implementation',
+                    'Less user-friendly than commercial alternatives'
                 ],
-                useCase: 'Essential for product descriptions, email marketing, customer service responses, and content brainstorming.'
+                bestUseCase: 'Great for developers and technical users wanting complete control over AI image generation.',
+                review: 'Powerful open-source option with unlimited potential but requires technical expertise.'
             },
-            aliexpress: {
-                name: 'AliExpress',
-                logo: '🏪',
-                url: 'https://aliexpress.com',
-                description: 'AliExpress is a global online marketplace owned by Alibaba, connecting consumers with sellers primarily from China offering competitive prices.',
-                rating: 3.8,
-                popularity: '150+ million app downloads',
-                marketShare: 'Top 10 global e-commerce sites',
+            'synthesia': {
+                name: 'Synthesia',
+                url: 'https://www.synthesia.io',
+                rating: 85,
+                marketShareUS: '30%',
+                marketShareWorld: '25%',
+                category: 'AI Business Tools',
+                intro: 'Synthesia creates AI-generated videos with virtual presenters, perfect for training, marketing, and educational content.',
                 advantages: [
-                    'Extremely competitive pricing',
-                    'Massive product selection',
-                    'Buyer protection programs',
-                    'Dropshipping friendly',
-                    'Low minimum order quantities'
+                    'Professional AI avatars',
+                    'Multiple languages supported',
+                    'No filming required',
+                    'Consistent quality',
+                    'Time and cost effective'
                 ],
                 disadvantages: [
-                    'Long shipping times (10-30 days)',
-                    'Variable product quality',
-                    'Language barriers with some sellers',
-                    'Complex return process',
-                    'Limited customer service'
+                    'Expensive pricing',
+                    'Limited customization',
+                    'Can look artificial',
+                    'Subscription-based model',
+                    'Limited avatar emotions'
                 ],
-                useCase: 'Perfect for product sourcing, dropshipping, and finding affordable alternatives to expensive products.'
+                bestUseCase: 'Ideal for training videos, product demonstrations, and multilingual content.',
+                review: 'Leading AI video platform for professional content but comes with premium pricing.'
             },
-            semrush: {
-                name: 'Semrush',
-                logo: '📊',
-                url: 'https://semrush.com',
-                description: 'Semrush is a comprehensive digital marketing toolkit that provides SEO, PPC, content marketing, and competitive research tools.',
-                rating: 4.5,
-                popularity: '7+ million marketing professionals',
-                marketShare: '30% of SEO tools market',
+            'pictory': {
+                name: 'Pictory AI',
+                url: 'https://pictory.ai',
+                rating: 82,
+                marketShareUS: '10%',
+                marketShareWorld: '8%',
+                category: 'AI Business Tools',
+                intro: 'Pictory AI transforms text content into engaging videos automatically, perfect for social media and marketing content.',
                 advantages: [
-                    'Comprehensive SEO analysis',
-                    'Competitive intelligence features',
-                    'Keyword research and tracking',
+                    'Text-to-video conversion',
+                    'Automatic scene selection',
+                    'Social media optimization',
+                    'No video editing skills needed',
+                    'Affordable pricing'
+                ],
+                disadvantages: [
+                    'Limited customization options',
+                    'Generic templates',
+                    'Watermark on free plan',
+                    'Quality depends on source content',
+                    'Limited advanced features'
+                ],
+                bestUseCase: 'Perfect for creating social media videos and repurposing written content.',
+                review: 'Good entry-level tool for text-to-video conversion but limited for advanced users.'
+            },
+            'remove-bg': {
+                name: 'Remove.bg',
+                url: 'https://www.remove.bg',
+                rating: 88,
+                marketShareUS: '60%',
+                marketShareWorld: '55%',
+                category: 'AI Business Tools',
+                intro: 'Remove.bg uses AI to automatically remove backgrounds from images with high accuracy and speed.',
+                advantages: [
+                    'Extremely accurate results',
+                    'Fast processing',
+                    'Easy to use',
+                    'API available',
+                    'Handles complex images well'
+                ],
+                disadvantages: [
+                    'Limited to background removal',
+                    'Credit-based pricing',
+                    'No advanced editing features',
+                    'File size limitations',
+                    'Subscription for high volume'
+                ],
+                bestUseCase: 'Essential for e-commerce product photos and any background removal needs.',
+                review: 'Best-in-class background removal tool with exceptional accuracy and ease of use.'
+            },
+            'luma-ai': {
+                name: 'Luma AI',
+                url: 'https://lumalabs.ai',
+                rating: 86,
+                marketShareUS: '8%',
+                marketShareWorld: '6%',
+                category: 'AI Business Tools',
+                intro: 'Luma AI creates high-quality 3D models and scenes from photos, enabling immersive visual experiences.',
+                advantages: [
+                    '3D model generation',
+                    'High-quality outputs',
+                    'Mobile app available',
+                    'NeRF technology',
+                    'Easy photo capture process'
+                ],
+                disadvantages: [
+                    'Limited use cases',
+                    'Requires multiple photos',
+                    'Processing time can be long',
+                    'Premium features expensive',
+                    'Learning curve for optimization'
+                ],
+                bestUseCase: 'Great for creating 3D product models, virtual tours, and immersive content.',
+                review: 'Innovative 3D generation technology with impressive results but niche applications.'
+            },
+            'fireflies': {
+                name: 'Fireflies.ai',
+                url: 'https://fireflies.ai',
+                rating: 87,
+                marketShareUS: '20%',
+                marketShareWorld: '15%',
+                category: 'AI Business Tools',
+                intro: 'Fireflies.ai automatically records, transcribes, and analyzes voice conversations and meetings with AI insights.',
+                advantages: [
+                    'Accurate transcription',
+                    'Meeting insights and analytics',
+                    'Integration with popular platforms',
+                    'Searchable conversation history',
+                    'Action item extraction'
+                ],
+                disadvantages: [
+                    'Privacy concerns',
+                    'Requires internet connection',
+                    'Limited offline capabilities',
+                    'Subscription for advanced features',
+                    'May not capture all nuances'
+                ],
+                bestUseCase: 'Perfect for sales calls, team meetings, and customer service interactions.',
+                review: 'Excellent meeting assistant with strong transcription and analysis capabilities.'
+            },
+
+            // SEO Tools
+            'ahrefs': {
+                name: 'Ahrefs',
+                url: 'https://ahrefs.com',
+                rating: 92,
+                marketShareUS: '30%',
+                marketShareWorld: '35%',
+                category: 'SEO Tools',
+                intro: 'Ahrefs is a comprehensive SEO toolset offering keyword research, backlink analysis, content research, and rank tracking.',
+                advantages: [
+                    'Massive backlink database',
+                    'Excellent keyword research',
+                    'Site audit capabilities',
+                    'Content gap analysis',
+                    'Accurate ranking data'
+                ],
+                disadvantages: [
+                    'Expensive pricing',
+                    'Steep learning curve',
+                    'Data can be overwhelming',
+                    'Limited social media features',
+                    'No free plan available'
+                ],
+                bestUseCase: 'Essential for serious SEO professionals and agencies needing comprehensive data.',
+                review: 'Industry-leading SEO platform with unmatched backlink data but premium pricing.'
+            },
+            'semrush': {
+                name: 'SEMrush',
+                url: 'https://www.semrush.com',
+                rating: 90,
+                marketShareUS: '25%',
+                marketShareWorld: '30%',
+                category: 'SEO Tools',
+                intro: 'SEMrush provides comprehensive digital marketing tools including SEO, PPC, content marketing, and competitive research.',
+                advantages: [
+                    'All-in-one marketing toolkit',
+                    'Excellent competitor analysis',
+                    'PPC research capabilities',
                     'Content marketing tools',
-                    'Regular data updates'
+                    'Local SEO features'
                 ],
                 disadvantages: [
                     'Expensive for small businesses',
-                    'Steep learning curve',
-                    'Limited free features',
-                    'Data accuracy can vary by region',
-                    'Complex interface for beginners'
+                    'Complex interface',
+                    'Limited keyword tracking on lower plans',
+                    'Data accuracy varies',
+                    'Steep learning curve'
                 ],
-                useCase: 'Essential for keyword research, competitor analysis, and tracking SEO performance of your e-commerce site.'
+                bestUseCase: 'Perfect for comprehensive digital marketing campaigns and competitor analysis.',
+                review: 'Comprehensive marketing platform with excellent competitive intelligence features.'
             },
-            ahrefs: {
-                name: 'Ahrefs',
-                logo: '🔗',
-                url: 'https://ahrefs.com',
-                description: 'Ahrefs is a powerful SEO toolset that helps with backlink analysis, keyword research, content marketing, and competitive analysis.',
-                rating: 4.6,
-                popularity: 'Used by 60% of SEO professionals',
-                marketShare: '25% of SEO tools market',
+            'moz': {
+                name: 'Moz',
+                url: 'https://moz.com',
+                rating: 84,
+                marketShareUS: '20%',
+                marketShareWorld: '18%',
+                category: 'SEO Tools',
+                intro: 'Moz provides SEO software, tools, and resources to help improve search engine rankings and organic traffic.',
                 advantages: [
-                    'Best-in-class backlink database',
-                    'Accurate keyword difficulty scores',
-                    'Excellent site explorer tool',
-                    'Content gap analysis',
-                    'User-friendly interface'
+                    'User-friendly interface',
+                    'Domain Authority metric',
+                    'Local SEO tools',
+                    'Good educational resources',
+                    'Reliable keyword research'
                 ],
                 disadvantages: [
-                    'High pricing ($99+ per month)',
-                    'No free plan available',
-                    'Limited social media tools',
-                    'Focused mainly on SEO',
+                    'Smaller database than competitors',
+                    'Higher pricing for features',
+                    'Limited backlink data',
+                    'Slower tool performance',
+                    'Less frequent updates'
+                ],
+                bestUseCase: 'Good for beginners and local SEO, especially for smaller businesses.',
+                review: 'Solid SEO platform with excellent usability but limited compared to Ahrefs/SEMrush.'
+            },
+            'screaming-frog': {
+                name: 'Screaming Frog',
+                url: 'https://www.screamingfrog.co.uk',
+                rating: 89,
+                marketShareUS: '40%',
+                marketShareWorld: '45%',
+                category: 'SEO Tools',
+                intro: 'Screaming Frog SEO Spider is a desktop program that crawls websites to analyze and audit technical SEO elements.',
+                advantages: [
+                    'Comprehensive site crawling',
+                    'Technical SEO analysis',
+                    'Free version available',
+                    'Fast crawling speed',
+                    'Detailed technical reports'
+                ],
+                disadvantages: [
+                    'Desktop software only',
+                    'Steep learning curve',
+                    'Limited website size on free version',
+                    'Requires technical knowledge',
+                    'No cloud-based option'
+                ],
+                bestUseCase: 'Essential for technical SEO audits and website analysis.',
+                review: 'Industry standard for technical SEO analysis with powerful crawling capabilities.'
+            },
+            'ubersuggest': {
+                name: 'Ubersuggest',
+                url: 'https://neilpatel.com/ubersuggest',
+                rating: 78,
+                marketShareUS: '15%',
+                marketShareWorld: '12%',
+                category: 'SEO Tools',
+                intro: 'Ubersuggest by Neil Patel offers keyword research, site audit, and competitor analysis at an affordable price.',
+                advantages: [
+                    'Affordable pricing',
+                    'Simple interface',
+                    'Good for beginners',
+                    'Chrome extension available',
+                    'Content ideas generation'
+                ],
+                disadvantages: [
+                    'Limited data accuracy',
+                    'Smaller database',
+                    'Basic features compared to competitors',
+                    'Limited advanced filtering',
+                    'Keyword limits on plans'
+                ],
+                bestUseCase: 'Perfect for small businesses and beginners needing affordable SEO tools.',
+                review: 'Budget-friendly SEO tool with decent features but limited data compared to premium tools.'
+            },
+            'kwfinder': {
+                name: 'KWFinder',
+                url: 'https://kwfinder.com',
+                rating: 81,
+                marketShareUS: '8%',
+                marketShareWorld: '10%',
+                category: 'SEO Tools',
+                intro: 'KWFinder specializes in finding long-tail keywords with low competition and provides difficulty scores.',
+                advantages: [
+                    'Excellent keyword difficulty analysis',
+                    'User-friendly interface',
+                    'Good for long-tail keywords',
+                    'Local keyword research',
+                    'Competitive pricing'
+                ],
+                disadvantages: [
+                    'Limited features beyond keywords',
+                    'Small keyword database',
+                    'No site audit features',
+                    'Limited competitor analysis',
+                    'Search volume accuracy issues'
+                ],
+                bestUseCase: 'Best for finding low-competition keywords and local SEO research.',
+                review: 'Specialized keyword tool with good difficulty analysis but limited overall SEO features.'
+            },
+            'spyfu': {
+                name: 'SpyFu',
+                url: 'https://www.spyfu.com',
+                rating: 83,
+                marketShareUS: '12%',
+                marketShareWorld: '8%',
+                category: 'SEO Tools',
+                intro: 'SpyFu focuses on competitor research, showing which keywords competitors buy and rank for.',
+                advantages: [
+                    'Strong competitor analysis',
+                    'PPC keyword research',
+                    'Historical data tracking',
+                    'Affordable pricing',
+                    'Domain comparison tools'
+                ],
+                disadvantages: [
+                    'Limited to US data primarily',
+                    'Smaller keyword database',
+                    'Basic site audit features',
+                    'Interface feels dated',
+                    'Limited international coverage'
+                ],
+                bestUseCase: 'Great for competitive research and PPC keyword analysis.',
+                review: 'Solid competitor research tool with good PPC insights but limited global data.'
+            },
+            'serpstat': {
+                name: 'Serpstat',
+                url: 'https://serpstat.com',
+                rating: 80,
+                marketShareUS: '5%',
+                marketShareWorld: '8%',
+                category: 'SEO Tools',
+                intro: 'Serpstat provides SEO and PPC analysis with a focus on keyword research and competitor tracking.',
+                advantages: [
+                    'Affordable all-in-one solution',
+                    'Good international coverage',
+                    'Batch analysis features',
+                    'API access available',
+                    'Regular feature updates'
+                ],
+                disadvantages: [
+                    'Smaller market presence',
+                    'Data accuracy inconsistencies',
+                    'Limited advanced features',
+                    'Interface complexity',
+                    'Customer support issues'
+                ],
+                bestUseCase: 'Good alternative for budget-conscious users needing international SEO data.',
+                review: 'Decent SEO platform with competitive pricing but inconsistent data quality.'
+            },
+
+            // Analytics & Tracking
+            'google-analytics': {
+                name: 'Google Analytics',
+                url: 'https://analytics.google.com',
+                rating: 94,
+                marketShareUS: '85%',
+                marketShareWorld: '88%',
+                category: 'Analytics & Tracking',
+                intro: 'Google Analytics is the most widely used web analytics platform, providing comprehensive insights into website traffic and user behavior.',
+                advantages: [
+                    'Free and comprehensive',
+                    'Deep integration with Google services',
+                    'Extensive customization options',
+                    'Large user community',
+                    'Advanced segmentation capabilities'
+                ],
+                disadvantages: [
+                    'Steep learning curve',
+                    'Data sampling on high traffic',
+                    'Privacy concerns',
+                    'Complex interface',
                     'Can be overwhelming for beginners'
                 ],
-                useCase: 'Best for in-depth SEO analysis, link building strategies, and comprehensive competitor research.'
+                bestUseCase: 'Essential for any website wanting to understand traffic and user behavior.',
+                review: 'Industry standard analytics platform with unmatched features and integration.'
             },
-            tiktok: {
-                name: 'TikTok',
-                logo: '🎵',
-                url: 'https://tiktok.com',
-                description: 'TikTok is a short-form video social media platform that has become a major marketing channel for reaching younger audiences.',
-                rating: 4.2,
-                popularity: 'Fastest-growing social platform',
-                marketShare: '1 billion+ monthly active users',
+            'search-console': {
+                name: 'Google Search Console',
+                url: 'https://search.google.com/search-console',
+                rating: 92,
+                marketShareUS: '90%',
+                marketShareWorld: '92%',
+                category: 'Analytics & Tracking',
+                intro: 'Google Search Console helps monitor and maintain your site\'s presence in Google search results.',
                 advantages: [
-                    'Massive Gen Z and Millennial audience',
-                    'High engagement rates',
-                    'Viral potential for content',
-                    'Authentic, user-generated content style',
-                    'Advanced algorithm for content discovery'
+                    'Free Google tool',
+                    'Essential SEO insights',
+                    'Search performance data',
+                    'Indexing status monitoring',
+                    'Mobile usability reports'
                 ],
                 disadvantages: [
-                    'Content requires constant creation',
-                    'Platform policies can change rapidly',
-                    'Limited link functionality',
-                    'Regulatory uncertainty in some markets',
-                    'Requires understanding of trends'
+                    'Limited historical data',
+                    'Google-specific only',
+                    'Basic interface',
+                    'Delayed data reporting',
+                    'Limited competitive insights'
                 ],
-                useCase: 'Perfect for product demonstrations, brand awareness, and reaching younger demographics through creative content.'
+                bestUseCase: 'Absolutely essential for SEO and understanding Google search performance.',
+                review: 'Must-have free tool for any website owner serious about search visibility.'
             },
-            youtube: {
-                name: 'YouTube',
-                logo: '📺',
-                url: 'https://youtube.com',
-                description: 'YouTube is the world\'s largest video sharing platform, essential for video marketing, tutorials, and building brand authority.',
-                rating: 4.4,
-                popularity: 'Second most visited website globally',
-                marketShare: '2+ billion logged-in monthly users',
+            'hotjar': {
+                name: 'Hotjar',
+                url: 'https://www.hotjar.com',
+                rating: 89,
+                marketShareUS: '25%',
+                marketShareWorld: '30%',
+                category: 'Analytics & Tracking',
+                intro: 'Hotjar provides heatmaps, session recordings, and user feedback tools to understand how visitors interact with your website.',
                 advantages: [
-                    'Largest video platform globally',
-                    'Excellent SEO benefits',
-                    'Multiple monetization options',
-                    'Long-form content capabilities',
-                    'Strong analytics and insights'
+                    'Visual user behavior insights',
+                    'Session recordings',
+                    'Heatmap analysis',
+                    'User feedback tools',
+                    'Easy implementation'
                 ],
                 disadvantages: [
-                    'High competition for views',
-                    'Time-intensive content creation',
-                    'Algorithm changes affect reach',
-                    'Requires consistent uploading',
-                    'Copyright and content policy issues'
+                    'Can slow down website',
+                    'Privacy concerns',
+                    'Limited advanced analysis',
+                    'Expensive for high traffic',
+                    'Data storage limitations'
                 ],
-                useCase: 'Ideal for product tutorials, unboxing videos, brand storytelling, and building long-term audience relationships.'
+                bestUseCase: 'Perfect for understanding user behavior and optimizing website design.',
+                review: 'Excellent UX analytics tool that provides invaluable insights into user behavior.'
             },
-            instagram: {
-                name: 'Instagram',
-                logo: '📸',
-                url: 'https://instagram.com',
-                description: 'Instagram is a visual-focused social media platform perfect for showcasing products, building brand aesthetics, and influencer marketing.',
-                rating: 4.1,
-                popularity: 'Top platform for e-commerce marketing',
-                marketShare: '2 billion monthly active users',
+            'google-trends': {
+                name: 'Google Trends',
+                url: 'https://trends.google.com',
+                rating: 86,
+                marketShareUS: '80%',
+                marketShareWorld: '85%',
+                category: 'Analytics & Tracking',
+                intro: 'Google Trends shows the popularity of search terms over time and across different regions.',
                 advantages: [
-                    'Highly visual and product-focused',
-                    'Strong shopping integration',
-                    'Multiple content formats (posts, stories, reels)',
-                    'Influencer marketing opportunities',
-                    'Detailed audience insights'
+                    'Free Google tool',
+                    'Real-time trend data',
+                    'Geographic insights',
+                    'Seasonal trend analysis',
+                    'Comparative keyword analysis'
                 ],
                 disadvantages: [
-                    'Algorithm limits organic reach',
-                    'Requires high-quality visual content',
-                    'Story content disappears after 24 hours',
-                    'Increasing advertising costs',
-                    'Heavy time investment needed'
+                    'Relative data only',
+                    'No absolute search volumes',
+                    'Limited keyword suggestions',
+                    'Basic interface',
+                    'No competitive analysis'
                 ],
-                useCase: 'Essential for visual product marketing, brand building, and reaching customers through shopping features and ads.'
+                bestUseCase: 'Great for identifying trending topics and seasonal patterns.',
+                review: 'Valuable free tool for trend analysis and content planning.'
             },
+            'similarweb': {
+                name: 'SimilarWeb',
+                url: 'https://www.similarweb.com',
+                rating: 87,
+                marketShareUS: '20%',
+                marketShareWorld: '25%',
+                category: 'Analytics & Tracking',
+                intro: 'SimilarWeb provides website analytics and competitive intelligence for digital marketing insights.',
+                advantages: [
+                    'Competitive website analysis',
+                    'Traffic estimation',
+                    'Audience insights',
+                    'Industry benchmarking',
+                    'Marketing channel analysis'
+                ],
+                disadvantages: [
+                    'Expensive for full features',
+                    'Data accuracy varies',
+                    'Limited free tier',
+                    'Estimates may be inaccurate',
+                    'Complex pricing structure'
+                ],
+                bestUseCase: 'Excellent for competitive analysis and market research.',
+                review: 'Powerful competitive intelligence platform with valuable market insights.'
+            },
+            'crazy-egg': {
+                name: 'Crazy Egg',
+                url: 'https://www.crazyegg.com',
+                rating: 84,
+                marketShareUS: '15%',
+                marketShareWorld: '12%',
+                category: 'Analytics & Tracking',
+                intro: 'Crazy Egg provides heatmaps and click tracking to help optimize website design and user experience.',
+                advantages: [
+                    'Easy-to-understand heatmaps',
+                    'Click tracking analysis',
+                    'A/B testing features',
+                    'User-friendly interface',
+                    'Good customer support'
+                ],
+                disadvantages: [
+                    'Limited compared to competitors',
+                    'Basic analytics features',
+                    'Expensive for small sites',
+                    'Limited advanced segmentation',
+                    'Fewer features than Hotjar'
+                ],
+                bestUseCase: 'Good for basic heatmap analysis and website optimization.',
+                review: 'Simple heatmap tool with good usability but limited advanced features.'
+            },
+
+            // SEO Tools continued
+            'semrush': {
+                name: 'SEMrush',
+                url: 'https://www.semrush.com',
+                rating: 90,
+                marketShareUS: '25%',
+                marketShareWorld: '30%',
+                category: 'SEO Tools',
+                intro: 'SEMrush provides comprehensive digital marketing tools including SEO, PPC, content marketing, and competitive research.',
+                advantages: [
+                    'All-in-one marketing toolkit',
+                    'Excellent competitor analysis',
+                    'PPC research capabilities',
+                    'Content marketing tools',
+                    'Local SEO features'
+                ],
+                disadvantages: [
+                    'Expensive for small businesses',
+                    'Complex interface',
+                    'Limited keyword tracking on lower plans',
+                    'Data accuracy varies',
+                    'Steep learning curve'
+                ],
+                bestUseCase: 'Perfect for comprehensive digital marketing campaigns and competitor analysis.',
+                review: 'Comprehensive marketing platform with excellent competitive intelligence features.'
+            },
+
+            // Industry Resources
+            'shopify-blog': {
+                name: 'Shopify Blog',
+                url: 'https://www.shopify.com/blog',
+                rating: 88,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Shopify\'s official blog provides e-commerce insights, tutorials, industry trends, and success stories for online retailers.',
+                advantages: [
+                    'High-quality content',
+                    'Platform-specific insights',
+                    'Regular updates',
+                    'Free valuable resources',
+                    'Success stories and case studies'
+                ],
+                disadvantages: [
+                    'Shopify-focused content',
+                    'Can be promotional',
+                    'Limited advanced strategies',
+                    'Platform bias',
+                    'Content volume can be overwhelming'
+                ],
+                bestUseCase: 'Essential for Shopify users and general e-commerce education.',
+                review: 'Excellent resource for e-commerce insights with practical, actionable content.'
+            },
+            'ecommerce-fuel': {
+                name: 'Ecommerce Fuel',
+                url: 'https://www.ecommercefuel.com',
+                rating: 86,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Ecommerce Fuel is a community and resource hub for established e-commerce entrepreneurs with 7-figure+ businesses.',
+                advantages: [
+                    'High-level strategies',
+                    'Community of successful entrepreneurs',
+                    'Detailed case studies',
+                    'Expert interviews',
+                    'Advanced tactics'
+                ],
+                disadvantages: [
+                    'Focus on larger businesses',
+                    'Membership required for full access',
+                    'Less content for beginners',
+                    'Limited free resources',
+                    'Niche audience'
+                ],
+                bestUseCase: 'Perfect for established e-commerce businesses looking to scale further.',
+                review: 'Premium resource for serious e-commerce entrepreneurs with advanced strategies.'
+            },
+            'practical-ecommerce': {
+                name: 'Practical Ecommerce',
+                url: 'https://www.practicalecommerce.com',
+                rating: 84,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Practical Ecommerce provides actionable advice and insights for e-commerce merchants across all aspects of online retail.',
+                advantages: [
+                    'Practical, actionable advice',
+                    'Wide range of topics',
+                    'Industry expert contributors',
+                    'Regular content updates',
+                    'Platform-agnostic content'
+                ],
+                disadvantages: [
+                    'Content quality varies',
+                    'Some outdated articles',
+                    'Limited advanced strategies',
+                    'Ad-heavy website',
+                    'Navigation can be difficult'
+                ],
+                bestUseCase: 'Good for practical tips and staying updated on e-commerce trends.',
+                review: 'Solid resource for practical e-commerce advice with broad topic coverage.'
+            },
+            'ezra-firestone': {
+                name: 'Ezra Firestone',
+                url: 'https://smartmarketer.com',
+                rating: 87,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Ezra Firestone shares advanced e-commerce marketing strategies, focusing on Facebook advertising and customer lifetime value.',
+                advantages: [
+                    'Advanced marketing strategies',
+                    'Facebook advertising expertise',
+                    'Customer lifetime value focus',
+                    'Real business examples',
+                    'High-converting tactics'
+                ],
+                disadvantages: [
+                    'Advanced level content',
+                    'Heavy focus on paid advertising',
+                    'Expensive courses',
+                    'Can be overwhelming for beginners',
+                    'Strategy-heavy, less tactical'
+                ],
+                bestUseCase: 'Best for experienced marketers looking to master Facebook advertising and scaling.',
+                review: 'High-level marketing education with proven strategies for serious e-commerce growth.'
+            },
+            'ryan-deiss': {
+                name: 'Ryan Deiss',
+                url: 'https://www.digitalmarketer.com',
+                rating: 85,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Ryan Deiss and DigitalMarketer provide comprehensive digital marketing education and frameworks for e-commerce businesses.',
+                advantages: [
+                    'Comprehensive marketing frameworks',
+                    'Proven methodologies',
+                    'Wide range of topics',
+                    'High-quality training',
+                    'Strong community'
+                ],
+                disadvantages: [
+                    'Expensive certification programs',
+                    'Information can be overwhelming',
+                    'Heavy focus on lead generation',
+                    'Some outdated tactics',
+                    'Requires significant time investment'
+                ],
+                bestUseCase: 'Excellent for building comprehensive digital marketing knowledge and systems.',
+                review: 'Thorough marketing education with proven frameworks but requires investment and commitment.'
+            },
+            'russell-brunson': {
+                name: 'Russell Brunson',
+                url: 'https://russellbrunson.com',
+                rating: 83,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Russell Brunson focuses on sales funnels and conversion optimization through ClickFunnels and educational content.',
+                advantages: [
+                    'Sales funnel expertise',
+                    'Conversion optimization focus',
+                    'Storytelling in marketing',
+                    'Practical funnel strategies',
+                    'Strong community following'
+                ],
+                disadvantages: [
+                    'Heavy ClickFunnels promotion',
+                    'Can be overly sales-focused',
+                    'Some tactics feel outdated',
+                    'Limited technical implementation',
+                    'Repetitive content themes'
+                ],
+                bestUseCase: 'Great for learning sales funnel strategies and conversion optimization.',
+                review: 'Good funnel education with practical insights but heavy product promotion.'
+            },
+            'ecommerce-platforms': {
+                name: 'Ecommerce Platforms',
+                url: 'https://ecommerce-platforms.com',
+                rating: 82,
+                marketShareUS: 'N/A',
+                marketShareWorld: 'N/A',
+                category: 'Industry Resources',
+                intro: 'Ecommerce Platforms provides in-depth reviews and comparisons of e-commerce software and tools.',
+                advantages: [
+                    'Detailed platform comparisons',
+                    'Unbiased reviews',
+                    'Regular updates',
+                    'Beginner-friendly guides',
+                    'Wide platform coverage'
+                ],
+                disadvantages: [
+                    'Can be overwhelming for beginners',
+                    'Some affiliate bias',
+                    'Limited advanced strategies',
+                    'Focus mainly on platform selection',
+                    'Less actionable tactics'
+                ],
+                bestUseCase: 'Perfect for choosing the right e-commerce platform and tools.',
+                review: 'Helpful resource for platform selection with thorough comparisons and reviews.'
+            },
+
+            // Advertising & Marketing
             'google-ads': {
                 name: 'Google Ads',
-                logo: '🎯',
                 url: 'https://ads.google.com',
-                description: 'Google Ads is the world\'s largest online advertising platform, allowing businesses to display ads on Google search results and partner websites.',
-                rating: 4.2,
-                popularity: 'Used by millions of businesses worldwide',
-                marketShare: '28% of digital advertising spend',
+                rating: 91,
+                marketShareUS: '28%',
+                marketShareWorld: '32%',
+                category: 'Advertising & Marketing',
+                intro: 'Google Ads is Google\'s online advertising platform, allowing businesses to display ads across Google\'s network.',
                 advantages: [
-                    'Largest search advertising reach',
+                    'Massive reach and audience',
                     'Precise targeting options',
-                    'Pay-per-click cost control',
-                    'Detailed analytics and reporting',
-                    'Multiple ad formats available'
+                    'Measurable ROI',
+                    'Various ad formats',
+                    'Integration with Google ecosystem'
                 ],
                 disadvantages: [
-                    'Can be expensive in competitive industries',
-                    'Complex learning curve',
-                    'Requires ongoing optimization',
+                    'Increasing cost per click',
+                    'Complex optimization',
+                    'Steep learning curve',
                     'Click fraud concerns',
-                    'Ad fatigue and banner blindness'
+                    'Constant monitoring required'
                 ],
-                useCase: 'Essential for driving targeted traffic, increasing sales, and reaching customers at the moment they\'re searching for products.'
+                bestUseCase: 'Essential for reaching customers actively searching for your products.',
+                review: 'Most powerful search advertising platform with unmatched reach and targeting.'
             },
             'facebook-ads': {
                 name: 'Facebook Ads',
-                logo: '👥',
-                url: 'https://facebook.com/business',
-                description: 'Facebook Ads Manager allows businesses to create and manage advertising campaigns across Facebook, Instagram, and other Meta platforms.',
-                rating: 4.0,
-                popularity: '3+ billion monthly active users across platforms',
-                marketShare: '23% of digital advertising spend',
+                url: 'https://www.facebook.com/business/ads',
+                rating: 88,
+                marketShareUS: '24%',
+                marketShareWorld: '26%',
+                category: 'Advertising & Marketing',
+                intro: 'Facebook Ads Manager allows advertising across Facebook, Instagram, and the broader Meta network.',
                 advantages: [
-                    'Detailed demographic targeting',
-                    'Large user base across age groups',
-                    'Multiple ad formats and placements',
-                    'Cross-platform advertising (Facebook + Instagram)',
-                    'Powerful retargeting capabilities'
+                    'Detailed audience targeting',
+                    'Visual ad formats',
+                    'Cross-platform reach',
+                    'Strong mobile presence',
+                    'Lookalike audience features'
                 ],
                 disadvantages: [
                     'Increasing competition and costs',
                     'Privacy changes affecting targeting',
-                    'Ad fatigue among users',
-                    'Complex campaign management',
-                    'Platform policy changes'
+                    'Ad approval delays',
+                    'Platform dependency',
+                    'Complex attribution'
                 ],
-                useCase: 'Perfect for brand awareness, lead generation, and reaching specific demographics with highly targeted campaigns.'
+                bestUseCase: 'Perfect for visual products and building brand awareness.',
+                review: 'Leading social media advertising platform with excellent targeting but increasing challenges.'
+            },
+            'amazon-ads': {
+                name: 'Amazon Advertising',
+                url: 'https://advertising.amazon.com',
+                rating: 89,
+                marketShareUS: '15%',
+                marketShareWorld: '12%',
+                category: 'Advertising & Marketing',
+                intro: 'Amazon Advertising helps sellers and vendors promote their products within Amazon\'s marketplace.',
+                advantages: [
+                    'High-intent audience',
+                    'Various ad types available',
+                    'Direct impact on sales',
+                    'Detailed product targeting',
+                    'Growing advertising platform'
+                ],
+                disadvantages: [
+                    'Amazon-only ecosystem',
+                    'Increasing competition',
+                    'Complex bid management',
+                    'Limited brand building',
+                    'Requires Amazon presence'
+                ],
+                bestUseCase: 'Essential for Amazon sellers wanting to increase product visibility.',
+                review: 'Highly effective for Amazon sellers with excellent conversion rates.'
+            },
+            'pinterest-ads': {
+                name: 'Pinterest Business',
+                url: 'https://business.pinterest.com',
+                rating: 83,
+                marketShareUS: '3%',
+                marketShareWorld: '2%',
+                category: 'Advertising & Marketing',
+                intro: 'Pinterest Business provides advertising and business tools for reaching Pinterest\'s highly engaged, purchase-intent audience.',
+                advantages: [
+                    'High purchase intent users',
+                    'Visual discovery platform',
+                    'Lower competition',
+                    'Good for lifestyle brands',
+                    'Long content lifespan'
+                ],
+                disadvantages: [
+                    'Smaller audience than other platforms',
+                    'Limited B2B effectiveness',
+                    'Seasonal traffic fluctuations',
+                    'Less detailed targeting',
+                    'Platform-specific content needed'
+                ],
+                bestUseCase: 'Excellent for visual, lifestyle, and DIY products targeting women.',
+                review: 'Effective niche platform for visual brands with high-intent audiences.'
             },
             'tiktok-ads': {
                 name: 'TikTok Ads',
-                logo: '🎪',
                 url: 'https://ads.tiktok.com',
-                description: 'TikTok Ads Manager enables businesses to create engaging video advertisements on the rapidly growing TikTok platform.',
-                rating: 3.9,
-                popularity: '1+ billion monthly active users',
-                marketShare: 'Fastest-growing ad platform',
+                rating: 85,
+                marketShareUS: '8%',
+                marketShareWorld: '10%',
+                category: 'Advertising & Marketing',
+                intro: 'TikTok Ads Manager allows businesses to create and manage advertising campaigns on the popular short-video platform.',
                 advantages: [
-                    'High engagement rates with younger audiences',
-                    'Creative and authentic ad formats',
-                    'Growing user base and less competition',
-                    'Advanced targeting options',
-                    'Viral potential for creative content'
+                    'Rapidly growing platform',
+                    'High engagement rates',
+                    'Younger audience reach',
+                    'Creative ad formats',
+                    'Viral potential'
                 ],
                 disadvantages: [
-                    'Limited to younger demographics primarily',
-                    'Requires video content creation skills',
-                    'Platform still maturing for business use',
-                    'Regulatory concerns in some markets',
-                    'Higher content creation costs'
+                    'Uncertain regulatory environment',
+                    'Limited to younger demographics',
+                    'Content creation challenges',
+                    'Platform volatility',
+                    'Less mature advertising tools'
                 ],
-                useCase: 'Ideal for reaching Gen Z and Millennials, launching viral marketing campaigns, and building brand awareness through creative video content.'
+                bestUseCase: 'Great for brands targeting Gen Z and younger millennials.',
+                review: 'Promising platform with high engagement but regulatory uncertainties.'
+            },
+            'microsoft-ads': {
+                name: 'Microsoft Ads',
+                url: 'https://ads.microsoft.com',
+                rating: 82,
+                marketShareUS: '6%',
+                marketShareWorld: '4%',
+                category: 'Advertising & Marketing',
+                intro: 'Microsoft Ads (formerly Bing Ads) allows advertising on Microsoft\'s search network including Bing and Yahoo.',
+                advantages: [
+                    'Lower competition than Google',
+                    'Higher-income audience',
+                    'Better conversion rates',
+                    'Import from Google Ads',
+                    'Lower cost per click'
+                ],
+                disadvantages: [
+                    'Smaller audience reach',
+                    'Less advanced features',
+                    'Limited mobile traffic',
+                    'Fewer targeting options',
+                    'Less frequent updates'
+                ],
+                bestUseCase: 'Good complement to Google Ads for reaching different audiences.',
+                review: 'Underutilized platform with good ROI potential for the right businesses.'
+            },
+
+            // Email & Customer Service
+            'mailchimp': {
+                name: 'Mailchimp',
+                url: 'https://mailchimp.com',
+                rating: 86,
+                marketShareUS: '60%',
+                marketShareWorld: '55%',
+                category: 'Email & Customer Service',
+                intro: 'Mailchimp is a comprehensive marketing platform offering email marketing, automation, and customer journey tools.',
+                advantages: [
+                    'User-friendly interface',
+                    'Comprehensive free plan',
+                    'Good automation features',
+                    'Strong analytics',
+                    'Wide integration support'
+                ],
+                disadvantages: [
+                    'Limited advanced segmentation',
+                    'Expensive for large lists',
+                    'Template customization limits',
+                    'Customer support quality varies',
+                    'Limited phone support'
+                ],
+                bestUseCase: 'Perfect for small to medium businesses starting with email marketing.',
+                review: 'Excellent entry-level email platform with good features and usability.'
+            },
+            'klaviyo': {
+                name: 'Klaviyo',
+                url: 'https://www.klaviyo.com',
+                rating: 92,
+                marketShareUS: '25%',
+                marketShareWorld: '20%',
+                category: 'Email & Customer Service',
+                intro: 'Klaviyo is an advanced email and SMS marketing platform designed specifically for e-commerce businesses.',
+                advantages: [
+                    'E-commerce focused features',
+                    'Advanced segmentation',
+                    'Excellent automation',
+                    'Strong analytics and reporting',
+                    'Good deliverability rates'
+                ],
+                disadvantages: [
+                    'Expensive pricing',
+                    'Learning curve for beginners',
+                    'Limited design templates',
+                    'Complex for simple needs',
+                    'E-commerce focused only'
+                ],
+                bestUseCase: 'Best for serious e-commerce businesses wanting advanced email marketing.',
+                review: 'Premium e-commerce email platform with excellent features but high cost.'
+            },
+            'constant-contact': {
+                name: 'Constant Contact',
+                url: 'https://www.constantcontact.com',
+                rating: 81,
+                marketShareUS: '15%',
+                marketShareWorld: '10%',
+                category: 'Email & Customer Service',
+                intro: 'Constant Contact provides email marketing, social media marketing, and online survey tools for small businesses.',
+                advantages: [
+                    'Easy to use',
+                    'Good customer support',
+                    'Event marketing features',
+                    'Social media integration',
+                    'Good deliverability'
+                ],
+                disadvantages: [
+                    'Limited automation features',
+                    'Expensive for advanced features',
+                    'Basic analytics',
+                    'Limited template customization',
+                    'Fewer integrations'
+                ],
+                bestUseCase: 'Good for small businesses wanting simple email marketing with support.',
+                review: 'Solid basic email platform with good support but limited advanced features.'
+            },
+            'zendesk': {
+                name: 'Zendesk',
+                url: 'https://www.zendesk.com',
+                rating: 88,
+                marketShareUS: '25%',
+                marketShareWorld: '30%',
+                category: 'Email & Customer Service',
+                intro: 'Zendesk provides customer service and support ticketing system with multichannel communication capabilities.',
+                advantages: [
+                    'Comprehensive support features',
+                    'Multichannel support',
+                    'Good automation capabilities',
+                    'Scalable platform',
+                    'Strong reporting features'
+                ],
+                disadvantages: [
+                    'Expensive for small businesses',
+                    'Complex setup',
+                    'Learning curve',
+                    'Limited customization',
+                    'Can be overwhelming'
+                ],
+                bestUseCase: 'Best for medium to large businesses needing comprehensive customer support.',
+                review: 'Professional customer service platform with excellent features but high cost.'
+            },
+            'intercom': {
+                name: 'Intercom',
+                url: 'https://www.intercom.com',
+                rating: 89,
+                marketShareUS: '20%',
+                marketShareWorld: '18%',
+                category: 'Email & Customer Service',
+                intro: 'Intercom provides customer messaging platform combining live chat, bots, and customer support tools.',
+                advantages: [
+                    'Modern messaging interface',
+                    'Good automation and bots',
+                    'Real-time customer engagement',
+                    'Strong mobile apps',
+                    'Excellent user experience'
+                ],
+                disadvantages: [
+                    'Very expensive pricing',
+                    'Limited email marketing',
+                    'Complex pricing structure',
+                    'Can be resource intensive',
+                    'Learning curve for setup'
+                ],
+                bestUseCase: 'Perfect for SaaS and tech companies wanting modern customer messaging.',
+                review: 'Premium customer messaging platform with excellent UX but very high cost.'
+            },
+            'freshdesk': {
+                name: 'Freshdesk',
+                url: 'https://freshdesk.com',
+                rating: 85,
+                marketShareUS: '15%',
+                marketShareWorld: '20%',
+                category: 'Email & Customer Service',
+                intro: 'Freshdesk offers cloud-based customer support software with ticketing, knowledge base, and automation features.',
+                advantages: [
+                    'Affordable pricing',
+                    'Good free plan',
+                    'Easy to implement',
+                    'Good mobile apps',
+                    'Decent automation features'
+                ],
+                disadvantages: [
+                    'Limited advanced features',
+                    'Basic reporting on lower plans',
+                    'Limited customization',
+                    'Customer support quality varies',
+                    'Fewer integrations than competitors'
+                ],
+                bestUseCase: 'Good for small to medium businesses wanting affordable customer support.',
+                review: 'Affordable customer support solution with good basic features.'
+            },
+
+            // Design & Content
+            'canva': {
+                name: 'Canva',
+                url: 'https://www.canva.com',
+                rating: 91,
+                marketShareUS: '70%',
+                marketShareWorld: '65%',
+                category: 'Design & Content',
+                intro: 'Canva is a user-friendly graphic design platform offering templates and tools for creating professional designs.',
+                advantages: [
+                    'Extremely user-friendly',
+                    'Vast template library',
+                    'Collaborative features',
+                    'Good free plan',
+                    'Regular new features'
+                ],
+                disadvantages: [
+                    'Limited advanced design features',
+                    'Template-based approach',
+                    'Subscription for premium features',
+                    'Limited file format options',
+                    'Internet connection required'
+                ],
+                bestUseCase: 'Perfect for non-designers creating social media graphics and marketing materials.',
+                review: 'Outstanding design tool for beginners with excellent templates and ease of use.'
+            },
+            'adobe': {
+                name: 'Adobe Creative Cloud',
+                url: 'https://www.adobe.com/creativecloud.html',
+                rating: 95,
+                marketShareUS: '80%',
+                marketShareWorld: '75%',
+                category: 'Design & Content',
+                intro: 'Adobe Creative Cloud provides professional design software including Photoshop, Illustrator, and other industry-standard tools.',
+                advantages: [
+                    'Industry-standard tools',
+                    'Professional-grade features',
+                    'Comprehensive software suite',
+                    'Excellent integration between apps',
+                    'Regular updates and new features'
+                ],
+                disadvantages: [
+                    'Expensive subscription model',
+                    'Steep learning curve',
+                    'Resource-intensive software',
+                    'Overkill for simple tasks',
+                    'Requires design knowledge'
+                ],
+                bestUseCase: 'Essential for professional designers and agencies needing advanced capabilities.',
+                review: 'Industry leader with unmatched capabilities but expensive and complex for casual users.'
+            },
+            'figma': {
+                name: 'Figma',
+                url: 'https://www.figma.com',
+                rating: 93,
+                marketShareUS: '60%',
+                marketShareWorld: '55%',
+                category: 'Design & Content',
+                intro: 'Figma is a collaborative web-based design tool focused on UI/UX design and prototyping.',
+                advantages: [
+                    'Excellent collaboration features',
+                    'Web-based platform',
+                    'Great for UI/UX design',
+                    'Good free plan',
+                    'Real-time collaboration'
+                ],
+                disadvantages: [
+                    'Limited for print design',
+                    'Requires internet connection',
+                    'Learning curve for beginners',
+                    'Limited illustration features',
+                    'Focused mainly on digital design'
+                ],
+                bestUseCase: 'Best for UI/UX design and team collaboration on digital projects.',
+                review: 'Excellent collaborative design tool with strong focus on digital and interface design.'
+            },
+            'unsplash': {
+                name: 'Unsplash',
+                url: 'https://unsplash.com',
+                rating: 88,
+                marketShareUS: '50%',
+                marketShareWorld: '45%',
+                category: 'Design & Content',
+                intro: 'Unsplash provides high-quality, free stock photos for commercial and personal use.',
+                advantages: [
+                    'High-quality free photos',
+                    'Large photo library',
+                    'Easy to use',
+                    'Commercial use allowed',
+                    'Regular new additions'
+                ],
+                disadvantages: [
+                    'Limited photo variety sometimes',
+                    'No exclusive content',
+                    'Attribution encouraged',
+                    'Limited advanced search',
+                    'Popular photos become overused'
+                ],
+                bestUseCase: 'Perfect for finding high-quality free photos for websites and marketing.',
+                review: 'Excellent free stock photo resource with high-quality images.'
+            },
+            'pexels': {
+                name: 'Pexels',
+                url: 'https://www.pexels.com',
+                rating: 86,
+                marketShareUS: '40%',
+                marketShareWorld: '35%',
+                category: 'Design & Content',
+                intro: 'Pexels offers free stock photos and videos for commercial use with no attribution required.',
+                advantages: [
+                    'Free high-quality content',
+                    'Photos and videos available',
+                    'No attribution required',
+                    'Good search functionality',
+                    'Mobile app available'
+                ],
+                disadvantages: [
+                    'Smaller library than competitors',
+                    'Limited advanced features',
+                    'Some content quality varies',
+                    'Limited customization options',
+                    'No exclusive content'
+                ],
+                bestUseCase: 'Good alternative to Unsplash for free stock photos and videos.',
+                review: 'Solid free stock resource with good quality photos and videos.'
+            },
+            'shutterstock': {
+                name: 'Shutterstock',
+                url: 'https://www.shutterstock.com',
+                rating: 89,
+                marketShareUS: '30%',
+                marketShareWorld: '35%',
+                category: 'Design & Content',
+                intro: 'Shutterstock is a leading paid stock media platform offering photos, videos, music, and editorial content.',
+                advantages: [
+                    'Massive content library',
+                    'High-quality professional content',
+                    'Diverse media types',
+                    'Good licensing options',
+                    'Advanced search capabilities'
+                ],
+                disadvantages: [
+                    'Expensive subscription costs',
+                    'Credit-based system can be limiting',
+                    'Watermarks on preview images',
+                    'Complex licensing terms',
+                    'Overwhelming content volume'
+                ],
+                bestUseCase: 'Best for businesses needing high-quality, professional stock content.',
+                review: 'Premium stock content platform with excellent quality but high costs.'
+            },
+
+            // Inventory & Shipping
+            'shipstation': {
+                name: 'ShipStation',
+                url: 'https://www.shipstation.com',
+                rating: 90,
+                marketShareUS: '40%',
+                marketShareWorld: '30%',
+                category: 'Inventory & Shipping',
+                intro: 'ShipStation is a comprehensive shipping software that integrates with multiple carriers and e-commerce platforms.',
+                advantages: [
+                    'Multiple carrier integration',
+                    'Automation rules',
+                    'Bulk shipping capabilities',
+                    'Inventory management',
+                    'Excellent customer support'
+                ],
+                disadvantages: [
+                    'Monthly subscription cost',
+                    'Learning curve for setup',
+                    'Limited free plan',
+                    'Can be complex for simple needs',
+                    'Additional costs for high volume'
+                ],
+                bestUseCase: 'Perfect for e-commerce businesses shipping multiple orders daily.',
+                review: 'Industry-leading shipping software with excellent automation and carrier integration.'
+            },
+            'amazon-fba': {
+                name: 'Amazon FBA',
+                url: 'https://sell.amazon.com/fulfillment-by-amazon',
+                rating: 87,
+                marketShareUS: '70%',
+                marketShareWorld: '60%',
+                category: 'Inventory & Shipping',
+                intro: 'Fulfillment by Amazon handles storage, packing, shipping, and customer service for Amazon sellers.',
+                advantages: [
+                    'Prime eligibility for products',
+                    'Amazon handles customer service',
+                    'Scalable fulfillment',
+                    'Global fulfillment network',
+                    'Returns management'
+                ],
+                disadvantages: [
+                    'High fees and costs',
+                    'Loss of inventory control',
+                    'Storage limitations',
+                    'Commingled inventory risks',
+                    'Dependency on Amazon'
+                ],
+                bestUseCase: 'Best for Amazon sellers wanting hands-off fulfillment with Prime benefits.',
+                review: 'Powerful fulfillment service with Prime benefits but high costs and dependency.'
+            },
+            'cin7': {
+                name: 'Cin7',
+                url: 'https://www.cin7.com',
+                rating: 85,
+                marketShareUS: '10%',
+                marketShareWorld: '15%',
+                category: 'Inventory & Shipping',
+                intro: 'Cin7 provides inventory management and order management across multiple sales channels and warehouses.',
+                advantages: [
+                    'Multi-channel inventory sync',
+                    'Warehouse management',
+                    'B2B and B2C capabilities',
+                    'Advanced reporting',
+                    'API integrations available'
+                ],
+                disadvantages: [
+                    'Expensive for small businesses',
+                    'Complex setup process',
+                    'Steep learning curve',
+                    'Limited customer support',
+                    'Overkill for simple inventory needs'
+                ],
+                bestUseCase: 'Great for medium to large businesses with complex inventory needs.',
+                review: 'Comprehensive inventory management with powerful features but complex implementation.'
+            },
+            'easyship': {
+                name: 'Easyship',
+                url: 'https://www.easyship.com',
+                rating: 83,
+                marketShareUS: '8%',
+                marketShareWorld: '12%',
+                category: 'Inventory & Shipping',
+                intro: 'Easyship provides global shipping solutions with discounted rates and integration with e-commerce platforms.',
+                advantages: [
+                    'Global shipping network',
+                    'Discounted shipping rates',
+                    'Customs handling',
+                    'Multiple platform integrations',
+                    'Good international shipping'
+                ],
+                disadvantages: [
+                    'Limited domestic shipping focus',
+                    'Variable pricing structure',
+                    'Customer support issues',
+                    'Limited warehouse network',
+                    'Complex for simple shipping needs'
+                ],
+                bestUseCase: 'Best for businesses shipping internationally or needing global logistics.',
+                review: 'Good international shipping solution but limited compared to specialized domestic options.'
+            },
+            'shipbob': {
+                name: 'ShipBob',
+                url: 'https://www.shipbob.com',
+                rating: 86,
+                marketShareUS: '15%',
+                marketShareWorld: '10%',
+                category: 'Inventory & Shipping',
+                intro: 'ShipBob provides 3PL fulfillment services with distributed warehouses and technology platform.',
+                advantages: [
+                    'Distributed warehouse network',
+                    'Fast shipping times',
+                    'Good technology platform',
+                    'Scalable fulfillment',
+                    'Analytics and reporting'
+                ],
+                disadvantages: [
+                    'Minimum monthly fees',
+                    'Limited international shipping',
+                    'Inventory management complexity',
+                    'Customer service quality varies',
+                    'Setup and onboarding time'
+                ],
+                bestUseCase: 'Great for growing e-commerce businesses needing outsourced fulfillment.',
+                review: 'Solid 3PL provider with good technology but minimum commitments required.'
+            },
+            'ups': {
+                name: 'UPS',
+                url: 'https://www.ups.com',
+                rating: 84,
+                marketShareUS: '25%',
+                marketShareWorld: '20%',
+                category: 'Inventory & Shipping',
+                intro: 'UPS provides shipping, logistics, and supply chain management services worldwide.',
+                advantages: [
+                    'Reliable shipping network',
+                    'Global reach',
+                    'Business solutions',
+                    'Tracking capabilities',
+                    'Various service levels'
+                ],
+                disadvantages: [
+                    'Higher costs than some competitors',
+                    'Limited e-commerce integration',
+                    'Complex pricing structure',
+                    'Customer service quality varies',
+                    'Less competitive for small packages'
+                ],
+                bestUseCase: 'Good for established businesses needing reliable shipping and logistics.',
+                review: 'Reliable shipping carrier with good business services but higher costs.'
+            },
+
+            // Financial & Payments
+            'quickbooks': {
+                name: 'QuickBooks',
+                url: 'https://quickbooks.intuit.com',
+                rating: 89,
+                marketShareUS: '70%',
+                marketShareWorld: '50%',
+                category: 'Financial & Payments',
+                intro: 'QuickBooks is the leading small business accounting software with comprehensive financial management features.',
+                advantages: [
+                    'Comprehensive accounting features',
+                    'Excellent integration ecosystem',
+                    'Strong reporting capabilities',
+                    'Good customer support',
+                    'Scalable plans available'
+                ],
+                disadvantages: [
+                    'Subscription pricing increases',
+                    'Can be complex for simple needs',
+                    'Limited customization',
+                    'Performance issues with large data',
+                    'Additional costs for premium features'
+                ],
+                bestUseCase: 'Essential for most small to medium businesses needing comprehensive accounting.',
+                review: 'Industry standard accounting software with excellent features but increasing costs.'
+            },
+            'paypal': {
+                name: 'PayPal',
+                url: 'https://www.paypal.com/business',
+                rating: 86,
+                marketShareUS: '50%',
+                marketShareWorld: '55%',
+                category: 'Financial & Payments',
+                intro: 'PayPal provides online payment processing, digital wallets, and financial services for businesses.',
+                advantages: [
+                    'Widely accepted payment method',
+                    'Buyer and seller protection',
+                    'Easy integration',
+                    'Global payment processing',
+                    'Strong brand recognition'
+                ],
+                disadvantages: [
+                    'Higher transaction fees',
+                    'Account freezing issues',
+                    'Limited customer support',
+                    'Chargeback complications',
+                    'Rolling reserves for new accounts'
+                ],
+                bestUseCase: 'Good for businesses wanting widely accepted payment option with buyer trust.',
+                review: 'Trusted payment platform with global reach but higher fees and account risks.'
+            },
+            'stripe': {
+                name: 'Stripe',
+                url: 'https://stripe.com',
+                rating: 92,
+                marketShareUS: '35%',
+                marketShareWorld: '30%',
+                category: 'Financial & Payments',
+                intro: 'Stripe provides developer-friendly payment processing with advanced features and global capabilities.',
+                advantages: [
+                    'Developer-friendly APIs',
+                    'Competitive transaction rates',
+                    'Advanced payment features',
+                    'Global payment support',
+                    'Excellent documentation'
+                ],
+                disadvantages: [
+                    'Requires technical implementation',
+                    'Limited phone support',
+                    'Complex pricing for some features',
+                    'Account approval process',
+                    'Better suited for tech-savvy users'
+                ],
+                bestUseCase: 'Perfect for tech-savvy businesses wanting advanced payment processing.',
+                review: 'Leading payment processor with excellent APIs and features for technical users.'
+            },
+            'square': {
+                name: 'Square',
+                url: 'https://squareup.com',
+                rating: 87,
+                marketShareUS: '30%',
+                marketShareWorld: '20%',
+                category: 'Financial & Payments',
+                intro: 'Square provides payment processing, POS systems, and business management tools for small businesses.',
+                advantages: [
+                    'Easy to use POS system',
+                    'Integrated business tools',
+                    'No monthly fees for basic plan',
+                    'Good for in-person sales',
+                    'Quick setup process'
+                ],
+                disadvantages: [
+                    'Higher fees for keyed transactions',
+                    'Limited advanced features',
+                    'Less suitable for high volume',
+                    'Customer support limitations',
+                    'Transaction limits for new accounts'
+                ],
+                bestUseCase: 'Great for small businesses with in-person sales and simple payment needs.',
+                review: 'User-friendly payment solution perfect for small businesses and retail.'
+            },
+            'xero': {
+                name: 'Xero',
+                url: 'https://www.xero.com',
+                rating: 88,
+                marketShareUS: '15%',
+                marketShareWorld: '25%',
+                category: 'Financial & Payments',
+                intro: 'Xero is cloud-based accounting software designed for small and medium businesses with strong collaboration features.',
+                advantages: [
+                    'User-friendly interface',
+                    'Strong collaboration features',
+                    'Good mobile apps',
+                    'Excellent bank integration',
+                    'Regular feature updates'
+                ],
+                disadvantages: [
+                    'Limited US market presence',
+                    'Fewer integrations than QuickBooks',
+                    'Customer support quality varies',
+                    'Limited inventory management',
+                    'Pricing increases over time'
+                ],
+                bestUseCase: 'Good alternative to QuickBooks for businesses preferring simpler interface.',
+                review: 'Solid accounting software with excellent usability but limited market presence in US.'
+            },
+            'wave': {
+                name: 'Wave Accounting',
+                url: 'https://www.waveapps.com',
+                rating: 82,
+                marketShareUS: '10%',
+                marketShareWorld: '8%',
+                category: 'Financial & Payments',
+                intro: 'Wave provides free accounting software for small businesses with optional paid services.',
+                advantages: [
+                    'Completely free accounting',
+                    'Good basic features',
+                    'Easy to use',
+                    'No user limits',
+                    'Good for simple businesses'
+                ],
+                disadvantages: [
+                    'Limited advanced features',
+                    'No inventory management',
+                    'Limited integrations',
+                    'Customer support only for paid services',
+                    'Basic reporting capabilities'
+                ],
+                bestUseCase: 'Perfect for very small businesses and freelancers with simple accounting needs.',
+                review: 'Excellent free accounting option for simple businesses but limited advanced capabilities.'
+            },
+
+            // Product Research
+            'alibaba': {
+                name: 'Alibaba',
+                url: 'https://www.alibaba.com',
+                rating: 88,
+                marketShareUS: '80%',
+                marketShareWorld: '85%',
+                category: 'Product Research',
+                intro: 'Alibaba is the world\'s largest B2B trading platform connecting businesses with manufacturers and suppliers.',
+                advantages: [
+                    'Massive supplier network',
+                    'Competitive wholesale prices',
+                    'Product customization options',
+                    'Trade assurance protection',
+                    'Global supplier reach'
+                ],
+                disadvantages: [
+                    'Quality control challenges',
+                    'Communication barriers',
+                    'Minimum order quantities',
+                    'Long shipping times',
+                    'Supplier verification needed'
+                ],
+                bestUseCase: 'Essential for finding manufacturers and wholesale suppliers globally.',
+                review: 'Unmatched supplier network with great prices but requires careful supplier vetting.'
+            },
+            'jungle-scout': {
+                name: 'Jungle Scout',
+                url: 'https://www.junglescout.com',
+                rating: 91,
+                marketShareUS: '40%',
+                marketShareWorld: '35%',
+                category: 'Product Research',
+                intro: 'Jungle Scout provides Amazon product research tools and market intelligence for sellers.',
+                advantages: [
+                    'Comprehensive Amazon research',
+                    'Accurate sales estimates',
+                    'Product opportunity finder',
+                    'Keyword research tools',
+                    'Educational resources'
+                ],
+                disadvantages: [
+                    'Expensive for beginners',
+                    'Amazon-focused only',
+                    'Learning curve for full utilization',
+                    'Data accuracy sometimes questionable',
+                    'Limited to Amazon marketplace'
+                ],
+                bestUseCase: 'Must-have for serious Amazon sellers doing product research.',
+                review: 'Leading Amazon research tool with excellent data and features but Amazon-specific only.'
+            },
+            'helium-10': {
+                name: 'Helium 10',
+                url: 'https://www.helium10.com',
+                rating: 89,
+                marketShareUS: '35%',
+                marketShareWorld: '30%',
+                category: 'Product Research',
+                intro: 'Helium 10 offers a comprehensive suite of Amazon seller tools for product research, optimization, and analytics.',
+                advantages: [
+                    'Complete Amazon toolkit',
+                    'Free plan available',
+                    'Chrome extension tools',
+                    'Regular tool updates',
+                    'Strong community and education'
+                ],
+                disadvantages: [
+                    'Can be overwhelming',
+                    'Expensive for full features',
+                    'Amazon-only focus',
+                    'Steep learning curve',
+                    'Some tools have limited accuracy'
+                ],
+                bestUseCase: 'Great all-in-one Amazon seller toolkit for research and optimization.',
+                review: 'Comprehensive Amazon toolkit with good value but can be complex for beginners.'
+            },
+            'aliexpress': {
+                name: 'AliExpress',
+                url: 'https://www.aliexpress.com',
+                rating: 83,
+                marketShareUS: '60%',
+                marketShareWorld: '70%',
+                category: 'Product Research',
+                intro: 'AliExpress is a B2C marketplace offering products from Chinese suppliers, popular for dropshipping.',
+                advantages: [
+                    'Low product costs',
+                    'Wide product variety',
+                    'Small minimum orders',
+                    'Buyer protection',
+                    'Easy to use platform'
+                ],
+                disadvantages: [
+                    'Long shipping times',
+                    'Quality control issues',
+                    'Limited customer service',
+                    'Intellectual property concerns',
+                    'Communication barriers'
+                ],
+                bestUseCase: 'Good for dropshipping and testing products with low initial investment.',
+                review: 'Accessible platform for low-cost products but quality and shipping challenges.'
+            },
+            'oberlo': {
+                name: 'Oberlo',
+                url: 'https://www.oberlo.com',
+                rating: 79,
+                marketShareUS: '50%',
+                marketShareWorld: '45%',
+                category: 'Product Research',
+                intro: 'Oberlo (now sunset) was a dropshipping app for Shopify that connected stores with suppliers.',
+                advantages: [
+                    'Easy Shopify integration',
+                    'Automated order fulfillment',
+                    'Product import features',
+                    'Supplier management',
+                    'Beginner-friendly'
+                ],
+                disadvantages: [
+                    'Service discontinued',
+                    'Limited supplier vetting',
+                    'Dropshipping challenges',
+                    'Quality control issues',
+                    'Dependent on third-party suppliers'
+                ],
+                bestUseCase: 'Was useful for Shopify dropshipping but service has been discontinued.',
+                review: 'Previously popular dropshipping tool but service has been discontinued by Shopify.'
+            },
+            'spocket': {
+                name: 'Spocket',
+                url: 'https://www.spocket.co',
+                rating: 84,
+                marketShareUS: '25%',
+                marketShareWorld: '20%',
+                category: 'Product Research',
+                intro: 'Spocket connects dropshippers with suppliers, focusing on US and EU suppliers for faster shipping.',
+                advantages: [
+                    'US and EU suppliers',
+                    'Faster shipping times',
+                    'Quality product curation',
+                    'Multiple platform integration',
+                    'Good supplier communication'
+                ],
+                disadvantages: [
+                    'Higher product costs',
+                    'Limited supplier network',
+                    'Subscription fees required',
+                    'Still dropshipping challenges',
+                    'Limited product variety'
+                ],
+                bestUseCase: 'Good for dropshipping with faster shipping and better quality control.',
+                review: 'Better dropshipping option with quality suppliers but higher costs and fees.'
+            },
+
+            // Reviews & Reputation
+            'trustpilot': {
+                name: 'Trustpilot',
+                url: 'https://www.trustpilot.com',
+                rating: 87,
+                marketShareUS: '40%',
+                marketShareWorld: '60%',
+                category: 'Reviews & Reputation',
+                intro: 'Trustpilot is a review platform that helps businesses collect and display customer reviews.',
+                advantages: [
+                    'Global review platform',
+                    'SEO benefits from reviews',
+                    'Trust signals for customers',
+                    'Review management tools',
+                    'Good for B2B businesses'
+                ],
+                disadvantages: [
+                    'Expensive for premium features',
+                    'Fake review concerns',
+                    'Limited control over reviews',
+                    'Can be slow to remove invalid reviews',
+                    'Complex pricing structure'
+                ],
+                bestUseCase: 'Great for building trust and social proof for your business.',
+                review: 'Leading review platform with good trust signals but requires ongoing management.'
+            },
+            'google-business': {
+                name: 'Google My Business',
+                url: 'https://www.google.com/business',
+                rating: 91,
+                marketShareUS: '90%',
+                marketShareWorld: '88%',
+                category: 'Reviews & Reputation',
+                intro: 'Google My Business helps manage your business presence across Google Search and Maps.',
+                advantages: [
+                    'Free Google listing',
+                    'Local SEO benefits',
+                    'Customer review management',
+                    'Business insights',
+                    'Direct customer communication'
+                ],
+                disadvantages: [
+                    'Limited customization',
+                    'Google controls the platform',
+                    'Fake review challenges',
+                    'Limited to local businesses',
+                    'Algorithm changes affect visibility'
+                ],
+                bestUseCase: 'Essential for any business with physical location or local customers.',
+                review: 'Must-have free tool for local business visibility and customer communication.'
+            },
+            'yelp': {
+                name: 'Yelp Business',
+                url: 'https://biz.yelp.com',
+                rating: 78,
+                marketShareUS: '60%',
+                marketShareWorld: '30%',
+                category: 'Reviews & Reputation',
+                intro: 'Yelp for Business helps manage your business listing and customer reviews on Yelp.',
+                advantages: [
+                    'Strong local search presence',
+                    'Active user community',
+                    'Good for restaurants and services',
+                    'Free business listing',
+                    'Customer messaging features'
+                ],
+                disadvantages: [
+                    'Aggressive sales tactics',
+                    'Filtered review algorithm',
+                    'Pay-to-play advertising model',
+                    'Limited international presence',
+                    'Negative review management challenges'
+                ],
+                bestUseCase: 'Important for restaurants, local services, and consumer-facing businesses.',
+                review: 'Important platform for local businesses but aggressive monetization and review filtering.'
+            },
+            'feedbackwhiz': {
+                name: 'FeedbackWhiz',
+                url: 'https://www.feedbackwhiz.com',
+                rating: 85,
+                marketShareUS: '20%',
+                marketShareWorld: '15%',
+                category: 'Reviews & Reputation',
+                intro: 'FeedbackWhiz helps Amazon sellers manage feedback, reviews, and customer communication.',
+                advantages: [
+                    'Amazon-specific features',
+                    'Automated email campaigns',
+                    'Review monitoring',
+                    'Feedback management',
+                    'Customer service tools'
+                ],
+                disadvantages: [
+                    'Amazon-only platform',
+                    'Subscription pricing',
+                    'Limited to seller feedback',
+                    'Amazon policy compliance needed',
+                    'Learning curve for setup'
+                ],
+                bestUseCase: 'Essential for Amazon sellers wanting to manage feedback and reviews.',
+                review: 'Specialized tool for Amazon sellers with good feedback management features.'
+            },
+            'reviews-io': {
+                name: 'Reviews.io',
+                url: 'https://www.reviews.io',
+                rating: 86,
+                marketShareUS: '15%',
+                marketShareWorld: '20%',
+                category: 'Reviews & Reputation',
+                intro: 'Reviews.io provides review collection and management platform for e-commerce businesses.',
+                advantages: [
+                    'Easy review collection',
+                    'Multiple platform integration',
+                    'Authentic review verification',
+                    'Good customer support',
+                    'Reasonable pricing'
+                ],
+                disadvantages: [
+                    'Smaller market presence',
+                    'Limited advanced features',
+                    'Fewer integrations than competitors',
+                    'Review display limitations',
+                    'Less brand recognition'
+                ],
+                bestUseCase: 'Good for e-commerce businesses wanting authentic review collection.',
+                review: 'Solid review platform with good features but limited market presence.'
+            },
+
+            // Social Media Management
+            'hootsuite': {
+                name: 'Hootsuite',
+                url: 'https://hootsuite.com',
+                rating: 84,
+                marketShareUS: '30%',
+                marketShareWorld: '35%',
+                category: 'Social Media Management',
+                intro: 'Hootsuite is a social media management platform for scheduling, monitoring, and analyzing social media content.',
+                advantages: [
+                    'Multiple platform support',
+                    'Team collaboration features',
+                    'Comprehensive analytics',
+                    'Content scheduling',
+                    'Social listening capabilities'
+                ],
+                disadvantages: [
+                    'Expensive for advanced features',
+                    'Complex interface',
+                    'Limited free plan',
+                    'Learning curve',
+                    'Slower performance sometimes'
+                ],
+                bestUseCase: 'Good for agencies and larger businesses managing multiple social accounts.',
+                review: 'Comprehensive social media tool with good features but complex and expensive.'
+            },
+            'buffer': {
+                name: 'Buffer',
+                url: 'https://buffer.com',
+                rating: 88,
+                marketShareUS: '25%',
+                marketShareWorld: '30%',
+                category: 'Social Media Management',
+                intro: 'Buffer provides simple social media scheduling and analytics with a focus on ease of use.',
+                advantages: [
+                    'Simple, clean interface',
+                    'Good scheduling features',
+                    'Affordable pricing',
+                    'Good customer support',
+                    'Easy to learn and use'
+                ],
+                disadvantages: [
+                    'Limited advanced features',
+                    'Basic analytics',
+                    'Fewer platform integrations',
+                    'Limited social listening',
+                    'Simple compared to competitors'
+                ],
+                bestUseCase: 'Perfect for small businesses wanting simple social media scheduling.',
+                review: 'User-friendly social media tool with good basic features but limited advanced capabilities.'
+            },
+            'later': {
+                name: 'Later',
+                url: 'https://later.com',
+                rating: 86,
+                marketShareUS: '20%',
+                marketShareWorld: '25%',
+                category: 'Social Media Management',
+                intro: 'Later specializes in visual social media scheduling, particularly strong for Instagram and Pinterest.',
+                advantages: [
+                    'Visual content calendar',
+                    'Strong Instagram features',
+                    'User-generated content tools',
+                    'Good mobile apps',
+                    'Visual planning interface'
+                ],
+                disadvantages: [
+                    'Limited text-based platforms',
+                    'Basic analytics',
+                    'Fewer advanced features',
+                    'Platform limitations',
+                    'Limited team features'
+                ],
+                bestUseCase: 'Best for visual brands focusing on Instagram, Pinterest, and visual content.',
+                review: 'Excellent visual social media tool but limited for comprehensive social management.'
+            },
+            'sprout-social': {
+                name: 'Sprout Social',
+                url: 'https://sproutsocial.com',
+                rating: 91,
+                marketShareUS: '15%',
+                marketShareWorld: '20%',
+                category: 'Social Media Management',
+                intro: 'Sprout Social provides comprehensive social media management with advanced analytics and CRM features.',
+                advantages: [
+                    'Excellent analytics and reporting',
+                    'Strong customer service features',
+                    'Good team collaboration',
+                    'Social CRM capabilities',
+                    'High-quality platform'
+                ],
+                disadvantages: [
+                    'Very expensive pricing',
+                    'Overkill for small businesses',
+                    'Complex for simple needs',
+                    'Learning curve',
+                    'Enterprise-focused features'
+                ],
+                bestUseCase: 'Best for larger businesses and agencies needing comprehensive social CRM.',
+                review: 'Premium social media platform with excellent features but very high cost.'
+            },
+            'instagram-creator': {
+                name: 'Instagram Creator Studio',
+                url: 'https://creators.instagram.com',
+                rating: 83,
+                marketShareUS: '60%',
+                marketShareWorld: '65%',
+                category: 'Social Media Management',
+                intro: 'Instagram Creator Studio provides native tools for managing Instagram and Facebook content and insights.',
+                advantages: [
+                    'Native Instagram integration',
+                    'Free to use',
+                    'Direct platform features',
+                    'Good analytics',
+                    'Cross-posting to Facebook'
+                ],
+                disadvantages: [
+                    'Limited to Instagram/Facebook',
+                    'Basic scheduling features',
+                    'Limited advanced tools',
+                    'Interface changes frequently',
+                    'Limited team features'
+                ],
+                bestUseCase: 'Good for businesses primarily focused on Instagram and Facebook.',
+                review: 'Free native tool with good basic features but limited compared to third-party options.'
+            },
+            'twitter-business': {
+                name: 'Twitter Business',
+                url: 'https://business.twitter.com',
+                rating: 79,
+                marketShareUS: '40%',
+                marketShareWorld: '35%',
+                category: 'Social Media Management',
+                intro: 'Twitter Business provides native tools for businesses to manage their Twitter presence and advertising.',
+                advantages: [
+                    'Native Twitter integration',
+                    'Free business tools',
+                    'Direct platform support',
+                    'Advertising integration',
+                    'Real-time engagement'
+                ],
+                disadvantages: [
+                    'Limited to Twitter only',
+                    'Basic features compared to third-party',
+                    'Platform volatility',
+                    'Limited analytics',
+                    'Fewer advanced management tools'
+                ],
+                bestUseCase: 'Good for businesses primarily using Twitter for customer service and engagement.',
+                review: 'Basic native Twitter tools but limited compared to comprehensive social media platforms.'
             }
         };
 
-        function openModal(websiteId) {
-            const website = websites[websiteId];
-            if (!website) return;
+        // App State
+        let filteredData = [];
+        let currentCategory = '';
+        let currentSort = 'rating';
+        let searchTerm = '';
+        let currentView = 'category';
 
-            const modal = document.getElementById('modal');
-            const modalLogo = document.getElementById('modal-logo');
-            const modalName = document.getElementById('modal-name');
-            const modalBody = document.getElementById('modal-body');
+        // Categories
+        const categories = [...new Set(Object.values(websiteData).map(tool => tool.category))].sort();
 
-            modalLogo.textContent = website.logo;
-            modalName.textContent = website.name;
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortSelect = document.getElementById('sortSelect');
+        const toolsGrid = document.getElementById('toolsGrid');
+        const categoryView = document.getElementById('categoryView');
+        const totalCount = document.getElementById('totalCount');
+        const showingCount = document.getElementById('showingCount');
+        const categoryCount = document.getElementById('categoryCount');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const filtersSection = document.getElementById('filtersSection');
 
-            const stars = '★'.repeat(Math.floor(website.rating)) + '☆'.repeat(5 - Math.floor(website.rating));
+        // Initialize
+        function init() {
+            populateCategories();
+            setupEventListeners();
+            
+            // Simulate loading
+            setTimeout(() => {
+                loading.style.display = 'none';
+                renderCategoryView();
+                updateStats();
+            }, 1000);
+        }
 
-            modalBody.innerHTML = `
-                <div class="info-section">
-                    <h3>What is ${website.name}?</h3>
-                    <p>${website.description}</p>
-                </div>
+        function switchView(view) {
+            currentView = view;
+            const categoryViewBtn = document.getElementById('categoryViewBtn');
+            const gridViewBtn = document.getElementById('gridViewBtn');
+            
+            if (view === 'category') {
+                categoryViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+                categoryView.classList.add('active');
+                toolsGrid.classList.remove('active');
+                filtersSection.style.display = 'none';
+                renderCategoryView();
+            } else {
+                gridViewBtn.classList.add('active');
+                categoryViewBtn.classList.remove('active');
+                categoryView.classList.remove('active');
+                toolsGrid.classList.add('active');
+                filtersSection.style.display = 'flex';
+                renderTools();
+            }
+            updateStats();
+        }
 
-                <div class="info-section">
-                    <h3>Rating & Popularity</h3>
-                    <p>
-                        <span class="rating-stars">${stars}</span>
-                        <strong>${website.rating}/5.0</strong> - ${website.popularity}
-                    </p>
-                </div>
+        function renderCategoryView() {
+            const categorizedTools = {};
+            
+            // Group tools by category
+            Object.entries(websiteData).forEach(([key, tool]) => {
+                if (!categorizedTools[tool.category]) {
+                    categorizedTools[tool.category] = [];
+                }
+                categorizedTools[tool.category].push({...tool, key});
+            });
 
-                <div class="info-section">
-                    <h3>Market Share</h3>
-                    <p>${website.marketShare}</p>
-                </div>
-
-                <div class="pros-cons">
-                    <div class="pros">
-                        <h4>✅ Advantages</h4>
-                        <ul>
-                            ${website.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
-                        </ul>
+            // Sort categories and tools within each category
+            const sortedCategories = Object.keys(categorizedTools).sort();
+            
+            categoryView.innerHTML = sortedCategories.map(category => {
+                const tools = categorizedTools[category].sort((a, b) => b.rating - a.rating);
+                
+                return `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <h2 class="category-title">${category}</h2>
+                            <span class="category-count">${tools.length} tools</span>
+                        </div>
+                        <div class="tools-list">
+                            ${tools.map(tool => `
+                                <div class="tool-item" onclick="switchToToolDetails('${tool.key}')">
+                                    <div class="tool-name">${tool.name}</div>
+                                    <div class="tool-description">${tool.intro.substring(0, 100)}...</div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
-                    <div class="cons">
-                        <h4>❌ Disadvantages</h4>
-                        <ul>
-                            ${website.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
-                        </ul>
+                `;
+            }).join('');
+        }
+
+        function switchToToolDetails(toolKey) {
+            currentView = 'grid';
+            searchTerm = websiteData[toolKey].name.toLowerCase();
+            searchInput.value = websiteData[toolKey].name;
+            switchView('grid');
+        }
+
+        // Make switchView and switchToToolDetails available globally
+        window.switchView = switchView;
+        window.switchToToolDetails = switchToToolDetails;
+
+        function populateCategories() {
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        function setupEventListeners() {
+            searchInput.addEventListener('input', handleSearch);
+            categoryFilter.addEventListener('change', handleCategoryChange);
+            sortSelect.addEventListener('change', handleSort);
+        }
+
+        function handleSearch(e) {
+            searchTerm = e.target.value.toLowerCase();
+            renderTools();
+            updateStats();
+        }
+
+        function handleCategoryChange(e) {
+            currentCategory = e.target.value;
+            renderTools();
+            updateStats();
+        }
+
+        function handleSort(e) {
+            currentSort = e.target.value;
+            renderTools();
+        }
+
+        function filterAndSortData() {
+            let data = Object.entries(websiteData).map(([key, tool]) => ({...tool, key}));
+
+            // Filter by category
+            if (currentCategory) {
+                data = data.filter(tool => tool.category === currentCategory);
+            }
+
+            // Filter by search term
+            if (searchTerm) {
+                data = data.filter(tool => 
+                    tool.name.toLowerCase().includes(searchTerm) ||
+                    tool.intro.toLowerCase().includes(searchTerm) ||
+                    tool.category.toLowerCase().includes(searchTerm) ||
+                    tool.review.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Sort data
+            data.sort((a, b) => {
+                switch (currentSort) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'marketShareUS':
+                        return parseFloat(b.marketShareUS || 0) - parseFloat(a.marketShareUS || 0);
+                    case 'marketShareWorld':
+                        return parseFloat(b.marketShareWorld || 0) - parseFloat(a.marketShareWorld || 0);
+                    case 'rating':
+                    default:
+                        return b.rating - a.rating;
+                }
+            });
+
+            return data;
+        }
+
+        function renderTools() {
+            filteredData = filterAndSortData();
+            
+            if (filteredData.length === 0) {
+                toolsGrid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            toolsGrid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            toolsGrid.innerHTML = filteredData.map(tool => createToolCard(tool)).join('');
+        }
+
+        function createToolCard(tool) {
+            return `
+                <div class="tool-card">
+                    <div class="category-badge">${tool.category}</div>
+                    <div class="tool-header">
+                        <div>
+                            <h3 class="tool-title">${tool.name}</h3>
+                            <a href="${tool.url}" target="_blank" class="tool-url">${tool.url}</a>
+                        </div>
                     </div>
+                    
+                    <div class="market-share">
+                        ${tool.marketShareUS && tool.marketShareUS !== 'N/A' ? `<div class="market-item"><strong>US:</strong> ${tool.marketShareUS}</div>` : ''}
+                        ${tool.marketShareWorld && tool.marketShareWorld !== 'N/A' ? `<div class="market-item"><strong>Global:</strong> ${tool.marketShareWorld}</div>` : ''}
+                    </div>
+                    
+                    <p class="tool-intro">${tool.intro}</p>
+                    
+                    <div class="expandable-content" id="content-${tool.key}">
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4>✓ Advantages</h4>
+                                <ul>
+                                    ${tool.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="cons">
+                                <h4>✗ Disadvantages</h4>
+                                <ul>
+                                    ${tool.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="use-case">
+                            <h4>💡 Best Use Case</h4>
+                            <p>${tool.bestUseCase}</p>
+                        </div>
+                        
+                        <div class="review">
+                            <h4>📝 Expert Review</h4>
+                            <p>${tool.review}</p>
+                        </div>
+                    </div>
+                    
+                    <button class="toggle-btn" onclick="toggleContent('${tool.key}')">
+                        Show Details
+                    </button>
                 </div>
-
-                <div class="info-section">
-                    <h3>Best Use Case</h3>
-                    <p>${website.useCase}</p>
-                </div>
-
-                <button class="visit-website-btn" onclick="visitWebsite('${website.url}')">
-                    Visit ${website.name} →
-                </button>
             `;
-
-            modal.style.display = 'block';
         }
 
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        function visitWebsite(url) {
-            window.open(url, '_blank');
-        }
-
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal');
-            if (event.target === modal) {
-                closeModal();
+        function toggleContent(key) {
+            const content = document.getElementById(`content-${key}`);
+            const button = content.nextElementSibling;
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                button.textContent = 'Show Details';
+            } else {
+                content.classList.add('expanded');
+                button.textContent = 'Hide Details';
             }
         }
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeModal();
+        function updateStats() {
+            const allTools = Object.values(websiteData);
+            const categoriesCount = categories.length;
+            
+            totalCount.textContent = allTools.length;
+            categoryCount.textContent = categoriesCount;
+            
+            if (currentView === 'category') {
+                showingCount.textContent = allTools.length;
+            } else {
+                showingCount.textContent = filteredData.length;
             }
-        });
+        }
+
+        // Make toggleContent available globally
+        window.toggleContent = toggleContent;
+
+        // Start the app
+        init();
     </script>
 </body>
 </html>
