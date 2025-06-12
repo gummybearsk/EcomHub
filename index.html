@@ -14,7 +14,54 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-commerce Tools Dashboard</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>E-commerce Tools Dashboard - Best Tools for Online Business Growth</title>
+    <meta name="description" content="Discover the best e-commerce tools for online business growth. Compare platforms, AI tools, SEO software, analytics, and more with ratings and reviews.">
+    <meta name="keywords" content="e-commerce tools, online business, shopify, amazon seller, digital marketing tools, SEO tools, business growth">
+    <meta name="author" content="E-commerce Tools Dashboard">
+    
+    <!-- Canonical URL - Replace with your actual domain -->
+    <link rel="canonical" href="https://yourdomain.com/">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="E-commerce Tools Dashboard - Best Tools for Online Business">
+    <meta property="og:description" content="Comprehensive guide to the best e-commerce tools, platforms, and software for growing your online business.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/">
+    <meta property="og:image" content="https://yourdomain.com/og-image.jpg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="E-commerce Tools Dashboard">
+    <meta name="twitter:description" content="Discover the best tools for growing your online business">
+    <meta name="twitter:image" content="https://yourdomain.com/twitter-image.jpg">
+    
+    <!-- Robots Meta Tag -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <!-- Structured Data for Website -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "E-commerce Tools Dashboard",
+      "description": "Comprehensive guide to the best e-commerce tools and platforms",
+      "url": "https://yourdomain.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://yourdomain.com/?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.gstatic.com" as="font" type="font/woff2" crossorigin>
+    
     <style>
         * {
             margin: 0;
@@ -462,6 +509,15 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* SEO Content - Hidden but crawlable */
+        .seo-content {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
         @media (max-width: 1200px) {
             .tools-grid {
                 grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -624,23 +680,51 @@
     </style>
 </head>
 <body>
+    <!-- SEO Content for Crawlers -->
+    <div class="seo-content">
+        <h1>E-commerce Tools Dashboard - Complete Guide</h1>
+        <p>Find the best e-commerce tools for your online business. Compare platforms like Shopify, Amazon Seller Central, and more.</p>
+        
+        <h2>E-commerce Platforms</h2>
+        <ul>
+            <li>Amazon Seller Central - Sell on Amazon marketplace</li>
+            <li>Shopify - Leading e-commerce platform</li>
+            <li>eBay Seller Hub - Auction and fixed-price selling</li>
+            <li>Etsy Seller - Handmade and vintage marketplace</li>
+        </ul>
+        
+        <h2>AI & Text Tools</h2>
+        <ul>
+            <li>Claude AI - Advanced AI assistant</li>
+            <li>Google Gemini - Multimodal AI capabilities</li>
+            <li>Grammarly - Writing assistance</li>
+        </ul>
+        
+        <h2>SEO Tools</h2>
+        <ul>
+            <li>Ahrefs - Comprehensive SEO toolset</li>
+            <li>SEMrush - Digital marketing platform</li>
+            <li>Google Search Console - Essential SEO insights</li>
+        </ul>
+    </div>
+
     <div class="container">
-        <div class="header">
+        <header class="header">
             <h1>🚀 E-commerce Tools Dashboard</h1>
             <p>Discover the best tools to grow your online business</p>
-        </div>
+        </header>
 
         <div class="controls">
             <div class="view-toggle">
-               <button class="view-btn active" id="categoryViewBtn" onclick="switchView('category')">🏠 Home</button>
-                <button class="view-btn" id="gridViewBtn" onclick="switchView('grid')">🔍 Search & Filter</button>
+               <button class="view-btn active" id="categoryViewBtn" onclick="switchView('category')" type="button" aria-label="Switch to category view">🏠 Home</button>
+                <button class="view-btn" id="gridViewBtn" onclick="switchView('grid')" type="button" aria-label="Switch to search and filter view">🔍 Search & Filter</button>
             </div>
             <div class="filters" id="filtersSection" style="display: none;">
-                <input type="text" class="search-box" placeholder="Search tools..." id="searchInput">
-                <select class="category-filter" id="categoryFilter">
+                <input type="text" class="search-box" placeholder="Search tools..." id="searchInput" aria-label="Search tools">
+                <select class="category-filter" id="categoryFilter" aria-label="Filter by category">
                     <option value="">All Categories</option>
                 </select>
-                <select class="sort-select" id="sortSelect">
+                <select class="sort-select" id="sortSelect" aria-label="Sort tools by">
                     <option value="rating">Sort by Rating</option>
                     <option value="name">Sort by Name</option>
                     <option value="marketShareUS">Sort by US Market Share</option>
@@ -659,7 +743,7 @@
             <p>Loading amazing tools...</p>
         </div>
 
-        <div class="category-view active" id="categoryView"></div>
+        <main class="category-view active" id="categoryView"></main>
 
         <div class="tools-grid" id="toolsGrid"></div>
 
@@ -1605,33 +1689,6 @@
                 ],
                 bestUseCase: 'Good for basic heatmap analysis and website optimization.',
                 review: 'Simple heatmap tool with good usability but limited advanced features.'
-            },
-
-            // SEO Tools continued
-            'semrush': {
-                name: 'SEMrush',
-                url: 'https://www.semrush.com',
-                rating: 90,
-                marketShareUS: '25%',
-                marketShareWorld: '30%',
-                category: 'SEO Tools',
-                intro: 'SEMrush provides comprehensive digital marketing tools including SEO, PPC, content marketing, and competitive research.',
-                advantages: [
-                    'All-in-one marketing toolkit',
-                    'Excellent competitor analysis',
-                    'PPC research capabilities',
-                    'Content marketing tools',
-                    'Local SEO features'
-                ],
-                disadvantages: [
-                    'Expensive for small businesses',
-                    'Complex interface',
-                    'Limited keyword tracking on lower plans',
-                    'Data accuracy varies',
-                    'Steep learning curve'
-                ],
-                bestUseCase: 'Perfect for comprehensive digital marketing campaigns and competitor analysis.',
-                review: 'Comprehensive marketing platform with excellent competitive intelligence features.'
             },
 
             // Industry Resources
@@ -2672,31 +2729,6 @@
                 bestUseCase: 'Good for dropshipping and testing products with low initial investment.',
                 review: 'Accessible platform for low-cost products but quality and shipping challenges.'
             },
-            'oberlo': {
-                name: 'Oberlo',
-                url: 'https://www.oberlo.com',
-                rating: 79,
-                marketShareUS: '50%',
-                marketShareWorld: '45%',
-                category: 'Product Research',
-                intro: 'Oberlo (now sunset) was a dropshipping app for Shopify that connected stores with suppliers.',
-                advantages: [
-                    'Easy Shopify integration',
-                    'Automated order fulfillment',
-                    'Product import features',
-                    'Supplier management',
-                    'Beginner-friendly'
-                ],
-                disadvantages: [
-                    'Service discontinued',
-                    'Limited supplier vetting',
-                    'Dropshipping challenges',
-                    'Quality control issues',
-                    'Dependent on third-party suppliers'
-                ],
-                bestUseCase: 'Was useful for Shopify dropshipping but service has been discontinued.',
-                review: 'Previously popular dropshipping tool but service has been discontinued by Shopify.'
-            },
             'spocket': {
                 name: 'Spocket',
                 url: 'https://www.spocket.co',
@@ -2774,81 +2806,6 @@
                 bestUseCase: 'Essential for any business with physical location or local customers.',
                 review: 'Must-have free tool for local business visibility and customer communication.'
             },
-            'yelp': {
-                name: 'Yelp Business',
-                url: 'https://biz.yelp.com',
-                rating: 78,
-                marketShareUS: '60%',
-                marketShareWorld: '30%',
-                category: 'Reviews & Reputation',
-                intro: 'Yelp for Business helps manage your business listing and customer reviews on Yelp.',
-                advantages: [
-                    'Strong local search presence',
-                    'Active user community',
-                    'Good for restaurants and services',
-                    'Free business listing',
-                    'Customer messaging features'
-                ],
-                disadvantages: [
-                    'Aggressive sales tactics',
-                    'Filtered review algorithm',
-                    'Pay-to-play advertising model',
-                    'Limited international presence',
-                    'Negative review management challenges'
-                ],
-                bestUseCase: 'Important for restaurants, local services, and consumer-facing businesses.',
-                review: 'Important platform for local businesses but aggressive monetization and review filtering.'
-            },
-            'feedbackwhiz': {
-                name: 'FeedbackWhiz',
-                url: 'https://www.feedbackwhiz.com',
-                rating: 85,
-                marketShareUS: '20%',
-                marketShareWorld: '15%',
-                category: 'Reviews & Reputation',
-                intro: 'FeedbackWhiz helps Amazon sellers manage feedback, reviews, and customer communication.',
-                advantages: [
-                    'Amazon-specific features',
-                    'Automated email campaigns',
-                    'Review monitoring',
-                    'Feedback management',
-                    'Customer service tools'
-                ],
-                disadvantages: [
-                    'Amazon-only platform',
-                    'Subscription pricing',
-                    'Limited to seller feedback',
-                    'Amazon policy compliance needed',
-                    'Learning curve for setup'
-                ],
-                bestUseCase: 'Essential for Amazon sellers wanting to manage feedback and reviews.',
-                review: 'Specialized tool for Amazon sellers with good feedback management features.'
-            },
-            'reviews-io': {
-                name: 'Reviews.io',
-                url: 'https://www.reviews.io',
-                rating: 86,
-                marketShareUS: '15%',
-                marketShareWorld: '20%',
-                category: 'Reviews & Reputation',
-                intro: 'Reviews.io provides review collection and management platform for e-commerce businesses.',
-                advantages: [
-                    'Easy review collection',
-                    'Multiple platform integration',
-                    'Authentic review verification',
-                    'Good customer support',
-                    'Reasonable pricing'
-                ],
-                disadvantages: [
-                    'Smaller market presence',
-                    'Limited advanced features',
-                    'Fewer integrations than competitors',
-                    'Review display limitations',
-                    'Less brand recognition'
-                ],
-                bestUseCase: 'Good for e-commerce businesses wanting authentic review collection.',
-                review: 'Solid review platform with good features but limited market presence.'
-            },
 
             // Social Media Management
             'hootsuite': {
@@ -2900,106 +2857,6 @@
                 ],
                 bestUseCase: 'Perfect for small businesses wanting simple social media scheduling.',
                 review: 'User-friendly social media tool with good basic features but limited advanced capabilities.'
-            },
-            'later': {
-                name: 'Later',
-                url: 'https://later.com',
-                rating: 86,
-                marketShareUS: '20%',
-                marketShareWorld: '25%',
-                category: 'Social Media Management',
-                intro: 'Later specializes in visual social media scheduling, particularly strong for Instagram and Pinterest.',
-                advantages: [
-                    'Visual content calendar',
-                    'Strong Instagram features',
-                    'User-generated content tools',
-                    'Good mobile apps',
-                    'Visual planning interface'
-                ],
-                disadvantages: [
-                    'Limited text-based platforms',
-                    'Basic analytics',
-                    'Fewer advanced features',
-                    'Platform limitations',
-                    'Limited team features'
-                ],
-                bestUseCase: 'Best for visual brands focusing on Instagram, Pinterest, and visual content.',
-                review: 'Excellent visual social media tool but limited for comprehensive social management.'
-            },
-            'sprout-social': {
-                name: 'Sprout Social',
-                url: 'https://sproutsocial.com',
-                rating: 91,
-                marketShareUS: '15%',
-                marketShareWorld: '20%',
-                category: 'Social Media Management',
-                intro: 'Sprout Social provides comprehensive social media management with advanced analytics and CRM features.',
-                advantages: [
-                    'Excellent analytics and reporting',
-                    'Strong customer service features',
-                    'Good team collaboration',
-                    'Social CRM capabilities',
-                    'High-quality platform'
-                ],
-                disadvantages: [
-                    'Very expensive pricing',
-                    'Overkill for small businesses',
-                    'Complex for simple needs',
-                    'Learning curve',
-                    'Enterprise-focused features'
-                ],
-                bestUseCase: 'Best for larger businesses and agencies needing comprehensive social CRM.',
-                review: 'Premium social media platform with excellent features but very high cost.'
-            },
-            'instagram-creator': {
-                name: 'Instagram Creator Studio',
-                url: 'https://creators.instagram.com',
-                rating: 83,
-                marketShareUS: '60%',
-                marketShareWorld: '65%',
-                category: 'Social Media Management',
-                intro: 'Instagram Creator Studio provides native tools for managing Instagram and Facebook content and insights.',
-                advantages: [
-                    'Native Instagram integration',
-                    'Free to use',
-                    'Direct platform features',
-                    'Good analytics',
-                    'Cross-posting to Facebook'
-                ],
-                disadvantages: [
-                    'Limited to Instagram/Facebook',
-                    'Basic scheduling features',
-                    'Limited advanced tools',
-                    'Interface changes frequently',
-                    'Limited team features'
-                ],
-                bestUseCase: 'Good for businesses primarily focused on Instagram and Facebook.',
-                review: 'Free native tool with good basic features but limited compared to third-party options.'
-            },
-            'twitter-business': {
-                name: 'Twitter Business',
-                url: 'https://business.twitter.com',
-                rating: 79,
-                marketShareUS: '40%',
-                marketShareWorld: '35%',
-                category: 'Social Media Management',
-                intro: 'Twitter Business provides native tools for businesses to manage their Twitter presence and advertising.',
-                advantages: [
-                    'Native Twitter integration',
-                    'Free business tools',
-                    'Direct platform support',
-                    'Advertising integration',
-                    'Real-time engagement'
-                ],
-                disadvantages: [
-                    'Limited to Twitter only',
-                    'Basic features compared to third-party',
-                    'Platform volatility',
-                    'Limited analytics',
-                    'Fewer advanced management tools'
-                ],
-                bestUseCase: 'Good for businesses primarily using Twitter for customer service and engagement.',
-                review: 'Basic native Twitter tools but limited compared to comprehensive social media platforms.'
             }
         };
 
@@ -3199,7 +3056,7 @@
                     <div class="tool-header">
                         <div>
                             <h3 class="tool-title">${tool.name}</h3>
-                            <a href="${tool.url}" target="_blank" class="tool-url">${tool.url}</a>
+                            <a href="${tool.url}" target="_blank" class="tool-url" rel="noopener">${tool.url}</a>
                         </div>
                     </div>
                     
@@ -3237,7 +3094,7 @@
                         </div>
                     </div>
                     
-                    <button class="toggle-btn" onclick="toggleContent('${tool.key}')">
+                    <button class="toggle-btn" onclick="toggleContent('${tool.key}')" type="button" aria-label="Toggle details for ${tool.name}">
                         Show Details
                     </button>
                 </div>
@@ -3251,9 +3108,11 @@
             if (content.classList.contains('expanded')) {
                 content.classList.remove('expanded');
                 button.textContent = 'Show Details';
+                button.setAttribute('aria-label', `Show details for ${websiteData[key].name}`);
             } else {
                 content.classList.add('expanded');
                 button.textContent = 'Hide Details';
+                button.setAttribute('aria-label', `Hide details for ${websiteData[key].name}`);
             }
         }
 
